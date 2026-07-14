@@ -114,7 +114,7 @@ const PdfToJpg = () => {
   };
 
   if (!pdfFile) {
-    return <div className="min-h-screen bg-[#F8FAFD]"><UploadBox titlePrefix="PDF" titleHighlight="to JPG" titleSuffix="Converter" subTitle="Convert PDF pages into high-quality images." supportedFormat="PDF" maxSize="100 MB" onFilesSelect={handleFilesSelect} /></div>;
+    return <div className="min-h-screen bg-[#F8FAFD] flex items-center justify-center"><UploadBox titlePrefix="PDF" titleHighlight="to JPG" titleSuffix="Converter" subTitle="Convert PDF pages into high-quality images." supportedFormat="PDF" maxSize="100 MB" onFilesSelect={handleFilesSelect} /></div>;
   }
 
   const selectedPageCount = getSelectedPages(pageCount, allPages, customRange)?.length || 0;

@@ -241,7 +241,7 @@ const PopularTools = () => {
     .filter(Boolean);
 
   return (
-    <section className="w-full bg-slate-100 py-16 px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-purple-100 py-10 px-4 sm:px-6 lg:px-8">
       <AllToolsModal open={modalOpen} onClose={() => setModalOpen(false)} tools={tools} />
 
       <div className="max-w-7xl mx-auto space-y-14">
@@ -274,7 +274,7 @@ const PopularTools = () => {
                   
                   {/* Tool Meta */}
                   <div className="space-y-1.5">
-                    <h3 className="font-bold text-slate-900 text-lg md:text-xl lg:text-2xl group-hover:text-indigo-600 transition-colors leading-tight">
+                    <h3 className="font-bold text-slate-900 text-lg md:text-xl lg:text-xl group-hover:text-indigo-600 transition-colors leading-tight">
                       {tool.title}
                     </h3>
                     <p className="text-sm sm:text-base md:text-base lg:text-lg text-slate-600 font-medium leading-relaxed">

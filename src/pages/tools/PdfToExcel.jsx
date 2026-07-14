@@ -15,7 +15,7 @@ const PdfToExcel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFD]">
+    <div className="min-h-screen bg-[#F8FAFD] flex items-center justify-center">
       <UploadBox
         titlePrefix="PDF"
         titleHighlight="to Excel"

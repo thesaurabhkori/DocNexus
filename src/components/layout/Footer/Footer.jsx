@@ -2,7 +2,7 @@ import React from 'react';
 import logo from '../../../assets/logo/logo.png'; 
 import GitHubLogo from '../../../assets/logo/GitHub-logo.png';
 import LinkedInLogo from '../../../assets/logo/Linkedin-logo.png';
-import TwitterLogo from '../../../assets/logo/Teitter-logo.png'; 
+import TwitterLogo from '../../../assets/logo/Twitter-logo.png'; 
 import FacebookLogo from '../../../assets/logo/Facebook-logo.png';
 
 const Footer = () => {

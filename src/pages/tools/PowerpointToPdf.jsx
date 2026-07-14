@@ -15,7 +15,7 @@ const PowerpointToPdf = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFD]">
+    <div className="min-h-screen bg-[#F8FAFD] flex items-center justify-center">
       <UploadBox
         titlePrefix="PowerPoint"
         titleHighlight="to PDF"
