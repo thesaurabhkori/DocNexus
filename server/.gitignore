@@ -1,0 +1,8 @@
+node_modules/
+uploads/
+converted/
+temp/
+dist/
+
+.env
+*.log
