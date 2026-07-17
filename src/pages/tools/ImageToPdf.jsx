@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Upload, Trash2, GripVertical, Plus, 
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize, 
-  RotateCcw, FileText, ImageIcon, ChevronDown 
+  RotateCcw, FileText, ChevronDown 
 } from 'lucide-react';
 import UploadBox from '../../components/common/uploadbox';
 
@@ -37,12 +37,7 @@ const ImageToPdf = () => {
   useEffect(() => {
     if (isOriginalSize && uploadedImages[currentPage - 1]) {
       const activeImage = uploadedImages[currentPage - 1];
-      
-      if (activeImage.aspectRatio > 1) {
-        setOrientation('Landscape');
-      } else {
-        setOrientation('Portrait');
-      }
+      setOrientation(activeImage.aspectRatio > 1 ? 'Landscape' : 'Portrait');
       setImageFit('Fit to page'); 
     }
   }, [pageSize, isOriginalSize, currentPage, uploadedImages]);
@@ -51,12 +46,8 @@ const ImageToPdf = () => {
   const getImageDimensionsAsync = (url) => {
     return new Promise((resolve) => {
       const img = new Image();
-      img.onload = () => {
-        resolve({ width: img.naturalWidth, height: img.naturalHeight });
-      };
-      img.onerror = () => {
-        resolve({ width: 0, height: 0 });
-      };
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve({ width: 0, height: 0 });
       img.src = url;
     });
   };
@@ -137,8 +128,13 @@ const ImageToPdf = () => {
 
     const resolvedNewImages = await Promise.all(newImagesPromises);
 
-    setUploadedImages(prev => [...prev, ...resolvedNewImages]);
-    setCurrentPage(prev => (uploadedImages.length === 0 ? 1 : prev));
+    setUploadedImages((prev) => {
+      const newList = [...prev, ...resolvedNewImages];
+      if (prev.length === 0 && newList.length > 0) {
+        setCurrentPage(1);
+      }
+      return newList;
+    });
   };
 
   // NATIVE DRAG & DROP REORDER IMPLEMENTATION
@@ -156,11 +152,9 @@ const ImageToPdf = () => {
     const copyListItems = [...uploadedImages];
     const dragItemContent = copyListItems[dragItemIndex.current];
     
-    // Rearrange item positions
     copyListItems.splice(dragItemIndex.current, 1);
     copyListItems.splice(dragOverItemIndex.current, 0, dragItemContent);
     
-    // Persist changes and match focus page to sorted view
     const targetPageIndex = dragOverItemIndex.current + 1;
     dragItemIndex.current = null;
     dragOverItemIndex.current = null;
@@ -174,6 +168,11 @@ const ImageToPdf = () => {
   const handlePrevPage = () => { if (currentPage > 1) setCurrentPage(prev => prev - 1); };
 
   const handleDeleteImage = (id) => {
+    const targetImage = uploadedImages.find(img => img.id === id);
+    if (targetImage) {
+      URL.revokeObjectURL(targetImage.url);
+    }
+
     const updated = uploadedImages.filter(img => img.id !== id);
     setUploadedImages(updated);
     if (currentPage > updated.length) {
@@ -188,32 +187,40 @@ const ImageToPdf = () => {
     setZoom(100);
   };
 
+  // ⚡ INTERACTION PIPELINE REDIRECTION (Synchronized with Fixed Parsing State Layouts)
   const handleConvertToPdf = () => {
-    if (uploadedImages.length > 0) {
-      const cleanPageSize = pageSize.split(' ')[0].toLowerCase();
-      const cleanOrientation = orientation.toLowerCase();
+    if (uploadedImages.length === 0) return;
 
-      navigate('/processing', {
-        state: {
-          files: uploadedImages.map(img => img.rawFile),
-          toolType: 'image-to-pdf',
-          pdfSettings: { 
-            pageSize: cleanPageSize, 
-            orientation: isOriginalSize ? 'auto' : cleanOrientation, 
-            margins: margins.toLowerCase(), 
-            imageFit, 
-            imageQuality: imageQuality.toLowerCase(), 
-            addCaption, 
-            mergePdf 
-          }
+    // Enforce parsing structures properly carrying native binary fields safely
+    const formattedFiles = uploadedImages.map(img => ({
+      name: img.name,
+      size: img.size,
+      url: img.url,
+      rawFile: img.rawFile // 🌟 Carrying actual native binary file stream for Processing.jsx
+    }));
+
+    // Direct routing to Processing screen passing standardized routing state packages
+    navigate('/processing', {
+      state: {
+        files: formattedFiles,        // Processing page expects 'files' array
+        rawFiles: formattedFiles,     // Result page expects 'rawFiles' array to show size properly
+        toolType: 'image-to-pdf',
+        pdfSettings: {
+          pageSize,
+          orientation,
+          margins,
+          imageFit,
+          imageQuality,
+          addCaption,
+          mergePdf
         }
-      });
-    }
+      }
+    });
   };
 
   if (uploadedImages.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F9FAFC] flex flex-col justify-start xl:h-[calc(100dvh-4rem)] xl:min-h-0 xl:overflow-hidden">
+      <div className="min-h-screen bg-[#F8FAFD] flex items-center justify-center">
         <UploadBox 
           titlePrefix="Image"
           titleHighlight="to PDF"
@@ -221,11 +228,6 @@ const ImageToPdf = () => {
           subTitle="Convert your JPG, PNG, or WebP images into a single high-quality PDF document instantly."
           supportedFormat="IMAGES"
           maxSize={`${MAX_IMAGE_SIZE_MB} MB`}
-          headerIcon={
-            <div className="p-4 bg-pink-50 rounded-lg flex shrink-0 text-pink-500 border border-pink-100 shadow-sm">
-              <ImageIcon className="w-8 h-8" />
-            </div>
-          }
           onFilesSelect={processFiles}
         />
       </div>
@@ -233,7 +235,7 @@ const ImageToPdf = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFC] text-[#1E293B] flex flex-col xl:h-[calc(100dvh-4rem)] xl:min-h-0 xl:overflow-hidden">
+    <div className="flex-1 bg-[#F9FAFC] text-[#1E293B] flex flex-col xl:h-[calc(100dvh-4rem)] xl:min-h-0 xl:overflow-hidden">
       
       {/* Sub-Header Actions */}
       <div className="bg-white border-b border-[#E2E8F0] px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 xl:min-h-16 xl:px-6 xl:py-2">
@@ -250,7 +252,7 @@ const ImageToPdf = () => {
           </div>
         </div>
 
-        <div className="hidden xl:flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex items-center gap-2">
             <button 
               onClick={handlePrevPage} 
@@ -300,10 +302,10 @@ const ImageToPdf = () => {
       <main className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[minmax(280px,3fr)_minmax(0,7fr)_minmax(330px,3fr)] gap-6 p-6 max-w-[1600px] w-full mx-auto xl:overflow-hidden">
         
         {/* LEFT COLUMN: LIST */}
-        <section className="bg-white border border-[#E2E8F0] rounded-lg p-5 flex flex-col justify-between shadow-sm min-h-[500px] xl:min-h-0 xl:h-full xl:overflow-hidden all-tools-scroll">
-          <div className="min-h-0 xl:flex xl:flex-1 xl:flex-col">
+        <section className="bg-white border border-[#E2E8F0] rounded-lg p-5 flex flex-col justify-between shadow-sm min-h-[400px] xl:min-h-0 xl:h-full xl:overflow-hidden">
+          <div className="min-h-0 flex flex-1 flex-col">
             <h2 className="font-bold text-sm tracking-wide mb-4">Uploaded Images ({uploadedImages.length})</h2>
-            <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1 xl:max-h-none xl:min-h-0 xl:flex-1">
+            <div className="space-y-3 overflow-y-auto pr-1 flex-1 max-h-[300px] xl:max-h-none">
               {uploadedImages.map((img, idx) => (
                 <div 
                   key={img.id} 
@@ -325,10 +327,10 @@ const ImageToPdf = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-[#94A3B8]" onClick={(e) => e.stopPropagation()}>
-                    <button className="p-1.5 hover:text-[#1E293B] cursor-grab active:cursor-grabbing">
+                    <button className="p-1.5 hover:text-[#1E293B] cursor-grab active:cursor-grabbing" aria-label="Drag to reorder">
                       <GripVertical size={16} />
                     </button>
-                    <button onClick={() => handleDeleteImage(img.id)} className="p-1.5 hover:text-red-500 transition">
+                    <button onClick={() => handleDeleteImage(img.id)} className="p-1.5 hover:text-red-500 transition" aria-label="Delete image">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -345,12 +347,11 @@ const ImageToPdf = () => {
               <p className="text-[10px] text-[#94A3B8] mt-1 font-medium">JPG, PNG, WEBP (Max {MAX_IMAGE_SIZE_MB}MB each)</p>
             </label>
           </div>
-
         </section>
 
         {/* CENTER COLUMN: PREVIEW */}
         <section className="flex flex-col gap-4 min-h-0">
-          <div className="bg-white border border-[#E2E8F0] rounded-lg flex-1 min-h-[550px] p-6 flex flex-col justify-between shadow-sm xl:min-h-0">
+          <div className="bg-white border border-[#E2E8F0] rounded-lg flex-1 min-h-[400px] p-6 flex flex-col justify-between shadow-sm xl:min-h-0">
             <div className="flex-1 min-h-0 bg-[#F8FAFC] rounded-lg flex items-center justify-center p-4 xl:p-6 overflow-hidden border border-[#F1F5F9]">
               {uploadedImages[currentPage - 1] && (
                 <div 
@@ -370,12 +371,11 @@ const ImageToPdf = () => {
                 </div>
               )}
             </div>
-
           </div>
         </section>
 
         {/* RIGHT COLUMN: CONTROLS CONFIGURATION PANEL */}
-        <section className="bg-white border border-[#E2E8F0] rounded-lg p-4 shadow-sm space-y-5 max-h-[660px] overflow-y-auto xl:max-h-none xl:h-full xl:min-h-0 all-tools-scroll">
+        <section className="bg-white border border-[#E2E8F0] rounded-lg p-4 shadow-sm space-y-5 overflow-y-auto xl:h-full xl:min-h-0">
           <h2 className="font-bold text-sm tracking-wide border-b border-[#F1F5F9] pb-2">PDF Settings</h2>
           
           {/* Page Size Selection */}
@@ -387,7 +387,9 @@ const ImageToPdf = () => {
                 onChange={(e) => {
                   const nextPageSize = e.target.value;
                   setPageSize(nextPageSize);
-                  if (isOriginalSize && nextPageSize !== 'Original Size') {
+                  if (nextPageSize === 'Original Size') {
+                    setImageFit('Fit to page');
+                  } else if (pageSize === 'Original Size') {
                     setOrientation('Portrait');
                     setImageFit('Fit to page');
                   }
@@ -493,7 +495,7 @@ const ImageToPdf = () => {
       {/* Action Sticky Footer Panel */}
       <footer className="bg-white border-t border-[#E2E8F0] p-4 mt-auto shrink-0 xl:px-5 xl:py-2">
         <div className="max-w-[1550px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button onClick={handleReset} className="w-full sm:w-auto text-sm font-semibold border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] px-6 py-3 rounded-sm transition xl:px-5 xl:py-2">
+          <button onClick={() => navigate(-1)} className="w-full sm:w-auto text-sm font-semibold border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] px-6 py-3 rounded-sm transition xl:px-5 xl:py-2">
             Back to Upload
           </button>
           <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3">

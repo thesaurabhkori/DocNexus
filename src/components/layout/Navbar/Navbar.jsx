@@ -59,7 +59,7 @@ function Navbar() {
             Login
           </button>
 
-          <button className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium shadow-lg hover:scale-105 duration-300">
+          <button className="px-4 py-1 rounded-md bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium shadow-lg hover:scale-105 duration-300">
             Sign Up
           </button>
 

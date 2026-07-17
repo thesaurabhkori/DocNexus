@@ -15,7 +15,7 @@ const Hero = () => {
     <section className="relative w-full bg-[#fafbfe] overflow-hidden pt-4 pb-0 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
       
       {/* Background Decorative Blobs */}
-      <div className="absolute top-28 right-10 w-96 h-96 bg-purple-200/40 rounded-lgblur-3xl -z-10" />
+      <div className="absolute top-28 right-10 w-96 h-96 bg-purple-200/40 rounded-lg blur-3xl -z-10" />
       <div className="absolute bottom-10 left-10 w-80 h-80 bg-indigo-200/30 rounded-lg blur-3xl -z-10" />
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Processing = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [progress, setProgress] = useState(0);
+  const [statusText, setStatusText] = useState("Uploading and processing files...");
 
   const uploadedFiles = location.state?.files || [];
+  const rawFilesData = location.state?.rawFiles || uploadedFiles; // Result page key backup
   const toolType = location.state?.toolType || 'image-to-pdf';
   
-  // ⚡ ROUTE GUARD GUARDRAIL: Agar refresh kiya aur files nahi mili, toh direct wapas redirect karein
+  // ⚡ ROUTE GUARD: Agar workspace bypass karke user direct yahan aaye, toh wapas pathao
   useEffect(() => {
     if (!location.state || uploadedFiles.length === 0) {
       navigate('/', { replace: true });
@@ -23,6 +26,7 @@ const Processing = () => {
     const baseName = name.substring(0, name.lastIndexOf('.')) || name;
     switch (type) {
       case 'image-to-pdf': return `${baseName}.pdf`;
+      case 'unlock-pdf': return `${baseName}_unlocked.pdf`;
       case 'pdf-to-excel': return `${baseName}.xlsx`;
       case 'pdf-to-ppt': return `${baseName}.pptx`;
       case 'pdf-to-jpg': {
@@ -37,56 +41,110 @@ const Processing = () => {
 
   const outputName = getOutputFileName(fileName, toolType, selectedPageCount);
 
-  // 🛡️ BROWSER REFRESH/CLOSE PREVENTER: Processing ke dauran tab close karne se rokega
+  // 🛡️ TAB CLOSE PREVENTER: Processing ke dauran refresh alert
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (progress < 100 && uploadedFiles.length > 0) {
         e.preventDefault();
-        e.returnValue = 'File is processing. Are you sure you want to leave?';
+        e.returnValue = 'File processing holds active state. Are you sure you want to leave?';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [progress, uploadedFiles.length]);
 
-  // ⏳ PROGRESS BAR SIMULATION
+  // ⏳ REAL TIME API INTEGRATION AND PROGRESS MAPPING
   useEffect(() => {
     if (uploadedFiles.length === 0) return;
 
-    const timer = setInterval(() => {
+    // A fake progress buffer layer till server replies back
+    const progressInterval = setInterval(() => {
       setProgress((oldProgress) => {
-        if (oldProgress >= 100) {
-          clearInterval(timer);
-          return 100;
+        if (oldProgress >= 90) {
+          clearInterval(progressInterval);
+          setStatusText("Server compiling and rendering final output...");
+          return 90; 
         }
-        const diff = Math.random() * 15;
-        return Math.min(oldProgress + diff, 100);
+        const step = Math.random() * 12;
+        return Math.min(oldProgress + step, 90);
       });
-    }, 400);
+    }, 350);
 
-    return () => clearInterval(timer);
-  }, [uploadedFiles.length]);
-
-  // 🚀 REDIRECT TO RESULT PAGE ON COMPLETION
-  useEffect(() => {
-    if (progress === 100) {
-      const delay = setTimeout(() => {
-        navigate('/result', { 
-          state: { 
-            fileName: outputName, 
-            toolType: toolType,
-            rawFiles: uploadedFiles,
-            pdfSettings: location.state.pdfSettings,
-            jpgSettings: location.state.jpgSettings
-          } 
+    const executeConversion = async () => {
+      try {
+        const formData = new FormData();
+        
+        // Multi part files dump with safe extractor logic
+        uploadedFiles.forEach((file) => {
+          // Extracts Javascript native File object correctly
+          const actualFile = file.rawFile || file;
+          formData.append("images", actualFile); 
         });
-      }, 600);
-      return () => clearTimeout(delay);
-    }
-    // Dependency array optimized to prevent infinite triggers
-  }, [progress, navigate, outputName, toolType]);
 
-  // Agar condition galat hai toh khali component return karein jab tak redirect na ho jaye
+        // Safe insertion maps from parent route state parameters
+        if (location.state?.pdfSettings) {
+          const settings = location.state.pdfSettings;
+          formData.append("pageSize", settings.pageSize || "A4 (210 x 297 mm)");
+          formData.append("orientation", settings.orientation || "Portrait");
+          formData.append("margins", settings.margins || "Normal");
+          formData.append("imageFit", settings.imageFit || "Fit to page");
+          formData.append("imageQuality", settings.imageQuality || "High");
+          formData.append("addCaption", String(settings.addCaption || false));
+          formData.append("mergePdf", String(settings.mergePdf || false));
+        }
+
+        // ⚡ ENDPOINT ROUTING SELECTION MAPPING
+        // Option A: Dev Tunnel use kar rahe hain toh ise active rakhein:
+        // const backendBaseUrl = "https://0xhbwmwx-5000.inc1.devtunnels.ms/";
+        
+        // Option B: Agar bina internet local network Wi-Fi se chalana hai (Recommended Alternate):
+        const backendBaseUrl = "http://localhost:5000"; // CMD me 'ipconfig' ka IPv4 yahan dalein
+
+        const targetEndpoint = toolType === 'image-to-pdf' 
+          ? `${backendBaseUrl}/api/image-to-pdf` 
+          : `${backendBaseUrl}/api/${toolType}`;
+
+        // 🚀 AXIOS POST CALL WITH TUNNEL BYPASS HEADER
+        const response = await axios.post(targetEndpoint, formData, {
+          headers: { 
+            "Content-Type": "multipart/form-data",
+            "X-Tunnel-Skip-Anti-Phishing-Page": "true" // 🌟 Dev Tunnel authorization bypass matrix
+          }
+        });
+
+        if (response.data && response.data.pdfUrl) {
+          clearInterval(progressInterval);
+          setProgress(100);
+          setStatusText("Processing complete!");
+
+          // Navigation mapping to Result screen passing URL state attributes without opening windows
+          setTimeout(() => {
+            navigate('/result', {
+              state: {
+                fileName: outputName,
+                toolType: toolType,
+                pdfUrl: response.data.pdfUrl, 
+                rawFiles: rawFilesData, // Restored key to display accurate size metadata
+                success: true
+              }
+            });
+          }, 600);
+        } else {
+          throw new Error(response.data?.message || "Internal Engine Error");
+        }
+      } catch (error) {
+        clearInterval(progressInterval);
+        console.error("API error during processing pipeline:", error);
+        alert(error.response?.data?.message || error.message || "Something went wrong during data conversion.");
+        navigate('/', { replace: true });
+      }
+    };
+
+    executeConversion();
+
+    return () => clearInterval(progressInterval);
+  }, [uploadedFiles, toolType, navigate, outputName, location.state, rawFilesData]);
+
   if (!location.state || uploadedFiles.length === 0) return null;
 
   return (
@@ -103,8 +161,10 @@ const Processing = () => {
 
         {/* Header Text */}
         <div className="text-center space-y-2 mb-10">
-          <h2 className="text-3xl font-black text-slate-800 tracking-tight">Converting...</h2>
-          <p className="text-slate-400 font-medium text-sm sm:text-base">Please wait while we convert your file</p>
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+            {progress === 100 ? "Finished!" : "Converting..."}
+          </h2>
+          <p className="text-slate-400 font-medium text-sm sm:text-base">{statusText}</p>
         </div>
 
         {/* Progress Bar */}
@@ -120,8 +180,7 @@ const Processing = () => {
         </div>
 
         {/* File Information Card */}
-        <div className="w-full max-w-xl mx-auto bg-white border border-slate-400 rounded-lg p-4 flex items-center justify-between px-6 mb-6 gap-2">
-          {/* Input File Details */}
+        <div className="w-full max-w-xl mx-auto bg-white border border-slate-400 rounded-lg p-4 flex items-center justify-between px-6 mb-12 gap-2">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="p-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold uppercase shrink-0">
               {fileName.split('.').pop()}
@@ -129,12 +188,10 @@ const Processing = () => {
             <p className="text-sm font-bold text-slate-700 truncate" title={fileName}>{fileName}</p>
           </div>
           
-          {/* Arrow Spacer */}
           <svg className="w-4 h-4 text-slate-400 shrink-0 mx-2" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
           </svg>
           
-          {/* Output File Details */}
           <div className="flex items-center gap-3 min-w-0 flex-1 justify-end text-right">
             <p className="text-sm font-bold text-slate-700 truncate" title={outputName}>{outputName}</p>
             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold uppercase shrink-0">

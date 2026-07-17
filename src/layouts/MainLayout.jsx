@@ -14,7 +14,7 @@ function MainLayout() {
       <Navbar />
 
       {/* Main Content */}
-      <main className="w-full">
+      <main className="w-full flex-1">
         <Outlet />
       </main>
 

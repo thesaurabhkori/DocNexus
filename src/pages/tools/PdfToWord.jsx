@@ -22,7 +22,7 @@ const PdfToWord = () => {
         titleSuffix="Converter"
         subTitle="Convert PDF documents to editable Word files (.docx)."
         supportedFormat="PDF"
-        maxSize="100 MB"
+        maxSize="100 MB" 
         onFilesSelect={handleFilesSelect}
       />
     </div>

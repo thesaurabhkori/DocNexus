@@ -26,7 +26,7 @@ const PopularTools = () => {
   const tools = [
     {
       title: "JPG to PDF",
-      desc: "Convert images (JPG/PNG) into a single PDF",
+      desc: "Convert images (JPG/PNG) into a one PDF",
       icon: ImageIcon,
       iconClass: "text-pink-600",
       iconBg: "bg-pink-50",
@@ -241,14 +241,14 @@ const PopularTools = () => {
     .filter(Boolean);
 
   return (
-    <section className="w-full bg-purple-100 py-10 px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-white py-10 px-4 sm:px-6 lg:px-8">
       <AllToolsModal open={modalOpen} onClose={() => setModalOpen(false)} tools={tools} />
 
       <div className="max-w-7xl mx-auto space-y-14">
         
         {/* SECTION HEADER */}
         <div className="text-center space-y-3">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl font-black text-slate-900/90 tracking-tight">
             Popular Tools
           </h2>
           <p className="text-slate-500 font-medium text-sm sm:text-base">
@@ -264,28 +264,29 @@ const PopularTools = () => {
               <Link 
                 to={tool.path}
                 key={idx} 
-                className="bg-white rounded-lg p-5 border border-slate-300 hover:border-slate-900 hover:shadow-[0_10px_30px_rgba(99,102,241,0.06)] transition-all duration-300 flex flex-col justify-between group cursor-pointer decoration-transparent select-none"
+                className="bg-white rounded-lg p-4 border border-slate-300 hover:border-zinc-300 hover:bg-purple-100 hover:shadow-xl hover:-translate-y-4  transition-all duration-300 flex flex-col justify-between group cursor-pointer decoration-transparent select-none"
               >
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Tool Icon */}
-                  <div className={`w-12 h-12 ${tool.iconBg} rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 duration-300`}>
-                    <Icon className={`w-6 h-6 sm:w-6 sm:h-6 ${tool.iconClass}`} aria-hidden="true" />
+                  <div className={`w-10 h-10 ${tool.iconBg} rounded-sm flex items-center justify-center transition-transform group-hover:scale-105 duration-300`}>
+                    <Icon className={`w-8 h-8 sm:w-6 sm:h-8 ${tool.iconClass}`} aria-hidden="true" />
                   </div>
                   
                   {/* Tool Meta */}
-                  <div className="space-y-1.5">
-                    <h3 className="font-bold text-slate-900 text-lg md:text-xl lg:text-xl group-hover:text-indigo-600 transition-colors leading-tight">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-slate-700 text-lg md:text-xl lg:text-xl group-hover:text-indigo-600 transition-colors leading-tight">
                       {tool.title}
                     </h3>
-                    <p className="text-sm sm:text-base md:text-base lg:text-lg text-slate-600 font-medium leading-relaxed">
+                    <p className="text-lg sm:text-base md:text-base lg:text-md text-slate-600 font-medium leading-relaxed">
                       {tool.desc}
                     </p>
                   </div>
                 </div>
 
                 {/* Action Arrow */}
-                <div className="pt-6">
-                  <ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all duration-300" />
+                <div className="pt-2 inline-flex items-center gap-1 text-indigo-600 font-semibold">
+                  <span>Let's Go</span>
+                  <ArrowRight className="w-3 h-3 text-indigo-600 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all duration-300" />
                 </div>
               </Link>
             );

@@ -76,7 +76,7 @@ const Footer = () => {
           <div className="col-span-1 lg:col-span-2 flex flex-col space-y-3.5">
             <h4 className="text-sm font-bold text-slate-800 tracking-wide">Product</h4>
             <ul className="space-y-2.5 text-xs sm:text-sm text-slate-500 font-medium">
-              {['Image to PDF', 'PDF to Image', 'Merge PDF', 'Compress PDF', 'All Tools'].map((item, idx) => (
+              {['Image to PDF', 'PDF to Word', 'Word to PDF', 'Digital Signature', 'Compress PDF', 'All Tools'].map((item, idx) => (
                 <li key={idx} className="flex items-center gap-2 group cursor-pointer">
                   <span className="text-indigo-500 font-bold text-xs transition-transform group-hover:translate-x-0.5">&gt;</span>
                   <a href="#" className="hover:text-indigo-600 transition-colors">{item}</a>
