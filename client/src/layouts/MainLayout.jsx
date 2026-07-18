@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 
 // Folder structure ke hisab se exact absolute nested path:
 import Navbar from "../components/layout/Navbar/Navbar";
-import Footer from "../components/layout/Footer/Footer";
+import Footer from "../components/Footer/Footer";
 
 
 function MainLayout() {

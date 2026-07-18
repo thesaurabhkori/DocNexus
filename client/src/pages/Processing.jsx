@@ -26,6 +26,7 @@ const Processing = () => {
     const baseName = name.substring(0, name.lastIndexOf('.')) || name;
     switch (type) {
       case 'image-to-pdf': return `${baseName}.pdf`;
+      case 'word-to-pdf': return `${baseName}.pdf`;
       case 'unlock-pdf': return `${baseName}_unlocked.pdf`;
       case 'pdf-to-excel': return `${baseName}.xlsx`;
       case 'pdf-to-ppt': return `${baseName}.pptx`;
@@ -74,11 +75,15 @@ const Processing = () => {
       try {
         const formData = new FormData();
         
+        // ⚡ DYNAMIC FIELD KEY MUTATOR
+        // Agar Word tool hai toh backend array config ke anusaar 'files' key use hogi, varna default 'images'
+        const formPayloadKey = toolType === 'word-to-pdf' ? 'files' : 'images';
+
         // Multi part files dump with safe extractor logic
         uploadedFiles.forEach((file) => {
           // Extracts Javascript native File object correctly
           const actualFile = file.rawFile || file;
-          formData.append("images", actualFile); 
+          formData.append(formPayloadKey, actualFile); 
         });
 
         // Safe insertion maps from parent route state parameters
@@ -93,16 +98,16 @@ const Processing = () => {
           formData.append("mergePdf", String(settings.mergePdf || false));
         }
 
-        // ⚡ ENDPOINT ROUTING SELECTION MAPPING
-        // Option A: Dev Tunnel use kar rahe hain toh ise active rakhein:
-        // const backendBaseUrl = "https://0xhbwmwx-5000.inc1.devtunnels.ms/";
-        
-        // Option B: Agar bina internet local network Wi-Fi se chalana hai (Recommended Alternate):
-        const backendBaseUrl = "http://localhost:5000"; // CMD me 'ipconfig' ka IPv4 yahan dalein
+        const backendBaseUrl = "http://localhost:5000";
 
-        const targetEndpoint = toolType === 'image-to-pdf' 
-          ? `${backendBaseUrl}/api/image-to-pdf` 
-          : `${backendBaseUrl}/api/${toolType}`;
+        // ⚡ CORRECT DYNAMIC TARGET ENDPOINT MAPS
+        let targetEndpoint = `${backendBaseUrl}/api/${toolType}`;
+        if (toolType === 'image-to-pdf') {
+          targetEndpoint = `${backendBaseUrl}/api/image-to-pdf`;
+        } else if (toolType === 'word-to-pdf') {
+          // Naye independent routes path mapping context se link
+          targetEndpoint = `${backendBaseUrl}/api/word-to-pdf`;
+        }
 
         // 🚀 AXIOS POST CALL WITH TUNNEL BYPASS HEADER
         const response = await axios.post(targetEndpoint, formData, {
@@ -112,7 +117,10 @@ const Processing = () => {
           }
         });
 
-        if (response.data && response.data.pdfUrl) {
+        // Handle structural key responses (supports standard pdfUrl or native system fileName)
+        const fileKeyResponse = response.data?.pdfUrl || response.data?.fileName;
+
+        if (response.data && (response.data.success || fileKeyResponse)) {
           clearInterval(progressInterval);
           setProgress(100);
           setStatusText("Processing complete!");
@@ -123,7 +131,7 @@ const Processing = () => {
               state: {
                 fileName: outputName,
                 toolType: toolType,
-                pdfUrl: response.data.pdfUrl, 
+                pdfUrl: fileKeyResponse, 
                 rawFiles: rawFilesData, // Restored key to display accurate size metadata
                 success: true
               }

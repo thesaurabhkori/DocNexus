@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import AppRoutes from "./routes/AppRoutes";
 import ScaletenLoader from "./components/common/ScaletenLoader";
 
+// 🔗 Correct absolute entry points targeting common workspace location
+import UniversalWorkspace from './components/common/UniversalWorkspace';
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(document.readyState === "complete");
 
