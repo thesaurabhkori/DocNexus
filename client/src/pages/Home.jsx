@@ -1,7 +1,7 @@
 import React from 'react';
-import Hero from '../components/Hero/Hero';
-import PopularTools from '../components/PopularTools/PopularTools';
-import HowItWorks from '../components/HowItWorks/HowItWorks'; // 👈 1. Pehle Import Karein
+import Hero from "../components/home/hero";
+import PopularTools from "../components/home/PopularTools";
+import HowItWorks from "../components/HowItWorks/HowItWorks";
 
 
 const Home = () => {

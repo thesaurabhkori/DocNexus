@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import UploadBox from '../../components/common/uploadbox';
+import UploadBox from '../../components/upload/uploadbox';
 
 const RemovePages = () => {
   return (

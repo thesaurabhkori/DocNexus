@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize, 
   RotateCcw, FileText, ChevronDown 
 } from 'lucide-react';
-import UploadBox from '../../components/common/uploadbox';
+import UploadBox from '../../components/upload/uploadbox';
 
 const MAX_IMAGE_SIZE_MB = 100;
 const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
@@ -238,11 +238,11 @@ const ImageToPdf = () => {
     <div className="flex-1 bg-[#F9FAFC] text-[#1E293B] flex flex-col xl:h-[calc(100dvh-4rem)] xl:min-h-0 xl:overflow-hidden">
       
       {/* Sub-Header Actions */}
-      <div className="bg-white border-b border-[#E2E8F0] px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 xl:min-h-16 xl:px-6 xl:py-2">
+      <div className="bg-white border-b border-[#E2E8F0] px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 xl:min-h-12 xl:px-6 xl:py-2">
         <div className="flex items-center gap-4">
           <button 
             onClick={handleReset}
-            className="p-2.5 rounded-lg border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] transition xl:p-2"
+            className="p-2 rounded-sm border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] transition xl:p-2"
           >
             <ArrowLeft size={18} />
           </button>
@@ -262,7 +262,7 @@ const ImageToPdf = () => {
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs font-semibold px-2 py-1 bg-[#F1F5F9] rounded-lg">
+            <span className="text-xs font-semibold px-2 py-1 bg-[#F1F5F9] rounded-sm">
               {currentPage} / {uploadedImages.length}
             </span>
             <button 
@@ -299,12 +299,12 @@ const ImageToPdf = () => {
       </div>
 
       {/* Main Workspace */}
-      <main className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[minmax(280px,3fr)_minmax(0,7fr)_minmax(330px,3fr)] gap-6 p-6 max-w-[1600px] w-full mx-auto xl:overflow-hidden">
+      <main className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[minmax(280px,3fr)_minmax(0,7fr)_minmax(330px,3fr)] gap-6 p-4 max-w-[1600px] w-full mx-auto xl:overflow-hidden">
         
         {/* LEFT COLUMN: LIST */}
         <section className="bg-white border border-[#E2E8F0] rounded-lg p-5 flex flex-col justify-between shadow-sm min-h-[400px] xl:min-h-0 xl:h-full xl:overflow-hidden">
           <div className="min-h-0 flex flex-1 flex-col">
-            <h2 className="font-bold text-sm tracking-wide mb-4">Uploaded Images ({uploadedImages.length})</h2>
+            <h2 className="font-bold text-sm tracking-wide mb-3">Uploaded Images ({uploadedImages.length})</h2>
             <div className="space-y-3 overflow-y-auto pr-1 flex-1 max-h-[300px] xl:max-h-none">
               {uploadedImages.map((img, idx) => (
                 <div 
@@ -314,13 +314,13 @@ const ImageToPdf = () => {
                   onDragEnter={() => handleDragEnter(idx)}
                   onDragEnd={handleDragSort}
                   onDragOver={(e) => e.preventDefault()}
-                  className={`flex items-center justify-between p-3 border rounded-lg bg-[#FAFAFA] cursor-pointer transition active:opacity-60 ${
+                  className={`flex items-center justify-between p-2 border rounded-md bg-[#FAFAFA] cursor-pointer transition active:opacity-60 ${
                     currentPage === idx + 1 ? 'border-[#4F46E5]' : 'border-[#E2E8F0]'
                   }`}
                   onClick={() => setCurrentPage(idx + 1)}
                 >
                   <div className="flex items-center gap-3">
-                    <img src={img.url} alt="" className="w-12 h-12 object-cover rounded-lg border border-[#E2E8F0]" />
+                    <img src={img.url} alt="" className="w-12 h-12 object-cover rounded-md border border-[#E2E8F0]" />
                     <div className="truncate max-w-[120px]">
                       <p className="text-sm font-semibold truncate">{img.name}</p>
                       <p className="text-xs text-[#94A3B8] font-medium">{img.size}</p>
@@ -338,9 +338,9 @@ const ImageToPdf = () => {
               ))}
             </div>
 
-            <label className="relative mt-4 border-2 border-dashed border-[#D9DDE3] bg-[#F8FAFC] rounded-lg p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#F1F5F9] transition block">
+            <label className="relative mt-4 border-2 border-dashed border-[#D9DDE3] bg-[#F8FAFC] rounded-md p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#F1F5F9] transition block">
               <input type="file" multiple accept="image/*" className="hidden" onChange={handleInputChange} />
-              <div className="bg-white p-2.5 rounded-lg shadow-sm text-[#4F46E5] mb-2 border border-[#E2E8F0]">
+              <div className="bg-white p-2.5 rounded-sm shadow-sm text-[#4F46E5] mb-2 border border-[#E2E8F0]">
                 <Upload size={20} />
               </div>
               <p className="text-xs font-semibold text-[#1E293B]">Drag & drop more images here</p>
@@ -352,7 +352,7 @@ const ImageToPdf = () => {
         {/* CENTER COLUMN: PREVIEW */}
         <section className="flex flex-col gap-4 min-h-0">
           <div className="bg-white border border-[#E2E8F0] rounded-lg flex-1 min-h-[400px] p-6 flex flex-col justify-between shadow-sm xl:min-h-0">
-            <div className="flex-1 min-h-0 bg-[#F8FAFC] rounded-lg flex items-center justify-center p-4 xl:p-6 overflow-hidden border border-[#F1F5F9]">
+            <div className="flex-1 min-h-0 bg-[#F8FAFC] rounded-lg flex items-center justify-center p-4 xl:p-3 overflow-hidden border border-[#F1F5F9]">
               {uploadedImages[currentPage - 1] && (
                 <div 
                   className="bg-white shadow-lg border border-[#E2E8F0] flex items-center justify-center transition-all duration-200 max-w-full max-h-full"

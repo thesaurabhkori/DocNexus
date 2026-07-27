@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import UploadBox from './uploadbox'; 
+import UploadBox from "../upload/UploadBox"; 
 import mammoth from 'mammoth';
 import { TOOL_CONFIGS } from '../../config/toolConfig';
 import { 

@@ -1,183 +1,224 @@
-import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Unlock, Eye, EyeOff, Trash2, UploadCloud, ShieldCheck } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { 
+  Unlock, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  CheckCircle2, 
+  ArrowRight,
+  Info,
+  LockKeyhole,
+  Zap
+} from 'lucide-react';
+import UploadBox from '../../components/upload/uploadbox';
 
 const UnlockPdf = () => {
-  const navigate = useNavigate();
-  const inputRef = useRef(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileSelect = (files) => {
-    const file = files?.[0];
-    if (!file) return;
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Please select a PDF file.');
-      return;
-    }
-    setSelectedFile(file);
-  };
+  const fileInputRef = useRef(null);
 
-  const handleInputChange = (event) => {
-    handleFileSelect(event.target.files);
-    event.target.value = '';
-  };
+  const handleFileSelect = (selectedFiles) => {
+    if (!selectedFiles) return;
 
-  const handleDrop = (event) => {
-    event.preventDefault();
-    setIsDragging(false);
-    handleFileSelect(event.dataTransfer.files);
-  };
-
-  const handleUnlock = () => {
-    if (!selectedFile) {
-      alert('Please upload a password-protected PDF.');
-      return;
-    }
-    if (!password) {
-      alert('Please enter the PDF password.');
-      return;
+    let incomingFile = null;
+    if (selectedFiles instanceof FileList || Array.isArray(selectedFiles)) {
+      incomingFile = selectedFiles[0];
+    } else if (selectedFiles.target && selectedFiles.target.files) {
+      incomingFile = selectedFiles.target.files[0];
+    } else if (selectedFiles instanceof File) {
+      incomingFile = selectedFiles;
     }
 
-    navigate('/processing', {
-      state: {
-        files: [selectedFile],
-        toolType: 'unlock-pdf',
-        password,
-      },
+    if (!incomingFile) return;
+
+    setFile({
+      name: incomingFile.name,
+      size: (incomingFile.size / (1024 * 1024)).toFixed(2) + ' MB',
+      pages: '12 pages',
+      rawFile: incomingFile
     });
   };
 
+  const handleRemoveFile = () => {
+    setFile(null);
+    setPassword('');
+  };
+
+  // 1. FIRST SCREEN: UploadBox
+  if (!file) {
+    return (
+      <UploadBox
+        titlePrefix="Unlock"
+        titleHighlight="PDF"
+        subTitle="Enter the password to unlock and access your PDF file"
+        supportedFormat="FILES"
+        headerIcon={<Unlock className="w-10 h-10 text-indigo-600" />}
+        acceptTypes="application/pdf,.pdf"
+        multiple={false}
+        onFilesSelect={handleFileSelect}
+        onFileSelect={handleFileSelect}
+      />
+    );
+  }
+
+  // 2. MAIN UNLOCK PDF WORKSPACE (Screen Fitted Desktop & Mobile Re-ordered)
   return (
-    <div className="bg-[#F7F8FF] px-3 py-4 sm:px-4 sm:py-5">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-          <div className="h-full rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-            <div className="mb-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">1. Upload PDF</p>
-              <h2 className="mt-3 text-lg font-semibold text-slate-900">Select the PDF file you want to unlock</h2>
-            </div>
+    <div className="w-full min-h-screen lg:min-h-0 lg:h-[calc(100vh-65px)] bg-[#F8FAFC] p-3 sm:p-5 font-sans text-slate-800 flex flex-col justify-between overflow-x-hidden">
+      {/* Hidden File Input */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={(e) => {
+          handleFileSelect(e.target.files);
+          e.target.value = '';
+        }} 
+        accept="application/pdf,.pdf" 
+        className="hidden" 
+      />
 
-            <div
-              onDrop={handleDrop}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragging(true);
-              }}
-              onDragLeave={() => setIsDragging(false)}
-              onClick={() => inputRef.current?.click()}
-              className={`group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed px-4 py-7 text-center transition ${
-                isDragging ? 'border-indigo-400 bg-indigo-50/50' : 'border-slate-300 bg-slate-50 hover:border-indigo-300'
-              }`}
-            >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 transition duration-200 group-hover:bg-indigo-200">
-                <UploadCloud className="h-7 w-7" />
-              </div>
-              <p className="text-base font-semibold text-slate-900">Drag & drop your PDF here</p>
-              <p className="mt-2 text-sm text-slate-500">or choose a file from your device</p>
-              <button
-                type="button"
-                className="mt-5 inline-flex items-center justify-center rounded-full border border-indigo-500 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm transition hover:bg-indigo-50"
-              >
-                Choose PDF
-              </button>
-              <p className="mt-5 text-xs text-slate-500">PDF only • Max file size: 100MB</p>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="application/pdf,.pdf"
-                className="hidden"
-                onChange={handleInputChange}
-              />
-            </div>
-
-            {selectedFile && (
-              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-                      PDF
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-900">{selectedFile.name}</p>
-                      <p className="text-sm text-slate-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedFile(null)}
-                    className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:border-red-300 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+      <main className="max-w-6xl w-full mx-auto flex-1 flex flex-col justify-between min-h-0">
+        
+        {/* WORKSPACE GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 w-full flex-1 min-h-0 items-stretch my-auto">
+          
+          {/* MAIN UNLOCK PDF CARD (ORDER 1 ON MOBILE, RIGHT SIDE ON DESKTOP) */}
+          <div className="order-1 lg:order-2 lg:col-span-7 w-full lg:max-w-[520px] lg:ml-auto bg-white border border-slate-200/80 rounded-lg p-4 sm:p-6 shadow-2xs flex flex-col justify-between h-full">
+            
+            {/* Top Info Block */}
+            <div className="space-y-4 sm:space-y-5">
+              {/* Header Section */}
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#6338F6] rounded-md flex items-center justify-center text-white shrink-0 shadow-2xs">
+                  <Unlock className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <div>
+                  <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">Unlock PDF</h1>
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                    Enter the password to unlock and access your PDF file.
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className="h-full rounded-lg border border-slate-200 bg-[#F8F5FF] p-4 shadow-sm sm:p-5">
-            <div className="mb-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">2. Enter Password</p>
-              <h2 className="mt-3 text-lg font-semibold text-slate-900">Unlock your PDF</h2>
-              <p className="mt-2 text-sm text-slate-500">Enter the password used to protect the PDF file.</p>
-            </div>
+              {/* Selected PDF Card */}
+              <div className="border border-slate-200/80 rounded-md p-2.5 sm:p-3 flex items-center justify-between bg-white shadow-2xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-7 h-8 bg-[#FFF0F0] border border-[#FFE0E0] rounded-sm flex items-center justify-center shrink-0">
+                    <span className="text-[8px] font-black text-[#E53935] uppercase">PDF</span>
+                  </div>
+                  <div className="truncate">
+                    <p className="text-xs font-bold text-slate-800 truncate leading-tight">{file.name}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{file.size} &nbsp;•&nbsp; {file.pages}</p>
+                  </div>
+                </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">Password</label>
-                <div className="relative mt-2">
-                  <input
+                <button 
+                  onClick={handleRemoveFile}
+                  className="p-1.5 text-red-500 hover:bg-red-50 rounded-sm transition cursor-pointer"
+                  title="Remove File"
+                >
+                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              </div>
+
+              {/* Password Input */}
+              <div className="space-y-1">
+                <label className="text-[11px] sm:text-xs font-bold text-slate-800">Password</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-2.5 sm:top-3 text-slate-400">
+                    <LockKeyhole className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                  <input 
                     type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter PDF password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter PDF password"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 pr-12 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full text-xs border border-slate-200 rounded-md pl-9 pr-10 py-2 sm:py-2.5 bg-white text-slate-800 focus:outline-none focus:border-[#6338F6]"
                   />
-                  <button
+                  <button 
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-700"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                   </button>
                 </div>
               </div>
 
-              <label className="inline-flex items-center gap-2 text-sm text-slate-600">
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                Show password
-              </label>
-
-              <div className="rounded-lg border border-indigo-100 bg-white p-4 text-sm text-slate-600">
-                <div className="flex items-start gap-3">
-                  <ShieldCheck className="mt-1 h-5 w-5 text-indigo-600" />
-                  <div>
-                    <p className="font-semibold text-indigo-600">Your files are secure</p>
-                    <p className="mt-1">Files are processed locally and removed after your session.</p>
-                  </div>
+              {/* Security Callout Box */}
+              <div className="bg-[#F6F5FF] border border-[#EBE9FE] rounded-md p-3 flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-[#6338F6] shrink-0 mt-0.5" />
+                <div className="text-[11px] sm:text-xs text-slate-600 leading-relaxed">
+                  <p>We do not upload or store your files.</p>
+                  <p className="font-semibold text-slate-700">Your files are 100% secure and private.</p>
                 </div>
               </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={handleUnlock}
-                disabled={!selectedFile || !password}
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/15 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            {/* Action Submit Button (Shifted to bottom end) */}
+            <div className="mt-auto pt-4 sm:pt-6">
+              <button 
+                disabled={!password}
+                className={`w-full py-2.5 sm:py-3 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition ${
+                  password 
+                    ? 'bg-[#6338F6] hover:bg-[#5229E0] text-white cursor-pointer' 
+                    : 'bg-[#6338F6]/40 text-white cursor-not-allowed'
+                }`}
               >
-                <Unlock className="h-4 w-4" />
-                Unlock PDF
+                <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Unlock PDF</span>
               </button>
             </div>
+
           </div>
+
+          {/* LEFT AD BANNER (ORDER 2 ON MOBILE, LEFT SIDE ON DESKTOP) */}
+          <div className="order-2 lg:order-1 lg:col-span-5 bg-gradient-to-b from-purple-50/60 via-white to-indigo-50/40 border border-slate-200/80 rounded-lg p-4 sm:p-5 shadow-2xs flex flex-col justify-between h-full">
+            <div>
+              <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
+                Ad
+              </span>
+              <h2 className="text-base sm:text-xl font-black text-slate-900 leading-tight mt-2">
+                All PDF Tools <br />
+                <span className="text-[#6338F6]">In One Place</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                Convert, Compress, Merge, Split, Protect, Unlock & more.
+              </p>
+
+              <ul className="space-y-2 mt-3.5 text-xs font-medium text-slate-700">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6338F6] shrink-0" /> Fast & Easy to Use
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6338F6] shrink-0" /> 100% Secure
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6338F6] shrink-0" /> Works on All Devices
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6338F6] shrink-0" /> No Installation Required
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2 mt-4">
+              <button className="w-full flex items-center justify-center gap-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 py-2 rounded-md text-xs font-bold shadow-2xs transition cursor-pointer">
+                <span>Explore All Tools</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <div className="bg-[#6338F6]/10 border border-[#6338F6]/20 rounded-lg p-2.5 text-center flex items-center justify-center gap-2">
+                <Zap className="w-4 h-4 text-[#6338F6]" />
+                <p className="text-xs font-bold text-slate-800">DocNexus Suite</p>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
+
+      </main>
     </div>
   );
 };

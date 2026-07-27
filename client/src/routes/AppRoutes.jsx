@@ -1,31 +1,32 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
-import MainLayout from "../layouts/MainLayout";
-import Home from "../pages/Home";
-import Upload from "../pages/Upload";
-import Processing from "../pages/Processing";
-import Result from "../pages/Result";
-import Error404 from "../pages/Error404";
-import ImageToPdf from "../pages/tools/ImageToPdf";
-import PdfToJpg from "../pages/tools/PdfToJpg";
-import HtmlToPdf from "../pages/tools/HtmlToPdf";
-import PdfToPpt from "../pages/tools/PdfToPpt";
-import PdfToPdfa from "../pages/tools/PdfToPdfa";
-import MergePdf from "../pages/tools/MergePdf";
-import SplitPdf from "../pages/tools/SplitPdf";
-import CompressPdf from "../pages/tools/CompressPdf";
-import RotatePdf from "../pages/tools/RotatePdf";
-import RemovePages from "../pages/tools/RemovePages";
-import ExtractPages from "../pages/tools/ExtractPages";
-import WatermarkPdf from "../pages/tools/WatermarkPdf";
-import CropPdf from "../pages/tools/CropPdf";
-import UnlockPdf from "../pages/tools/UnlockPdf";
-import ProtectPdf from "../pages/tools/ProtectPdf";
-import SignPdf from "../pages/tools/SignPdf";
+import MainLayout from "../components/Layout/MainLayout";
+import Home from "../Pages/Home";
+import Processing from "../Pages/Processing";
+import Result from "../Pages/Result";
+import Error404 from "../Pages/Error404";
 
-// 🌟 NEW: Importing the Unified Framework Workspace from the Common directory
+import ImageToPdf from "../Pages/Tools/ImageToPdf";
+import PdfToJpg from "../Pages/Tools/PdfToJpg";
+import HtmlToPdf from "../Pages/Tools/HtmlToPdf";
+import PdfToPpt from "../Pages/Tools/PdfToPpt";
+import PdfToPdfa from "../Pages/Tools/PdfToPdfa";
+import MergePdf from "../Pages/Tools/MergePdf";
+import SplitPdf from "../Pages/Tools/SplitPdf";
+import CompressPdf from "../Pages/Tools/CompressPdf";
+import RotatePdf from "../Pages/Tools/RotatePdf";
+import RemovePages from "../Pages/Tools/RemovePages";
+import ExtractPages from "../Pages/Tools/ExtractPages";
+import WatermarkPdf from "../Pages/Tools/WatermarkPdf";
+import CropPdf from "../Pages/Tools/CropPdf";
+import UnlockPdf from "../Pages/Tools/UnlockPdf";
+import ProtectPdf from "../Pages/Tools/ProtectPdf";
+import SignPdf from "../Pages/Tools/SignPdf";
+
 import UniversalWorkspace from "../components/common/UniversalWorkspace";
+// Naya UploadBox import yahan add kiya hai:
+import UploadBox from "../components/upload/uploadbox";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -75,7 +76,8 @@ function AppRoutes() {
           <Route path="ppt-to-pdf" element={<UniversalWorkspace />} />
 
           {/* Baaki utility pages */}
-          <Route path="upload" element={<Upload />} />
+          {/* Yahan element ko <Upload /> se badal kar <UploadBox /> kar diya hai */}
+          <Route path="upload" element={<UploadBox />} />
           <Route path="processing" element={<Processing />} />
           <Route path="result" element={<Result />} />
         </Route>

@@ -1,9 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-
-// Folder structure ke hisab se exact absolute nested path:
-import Navbar from "../components/layout/Navbar/Navbar";
-import Footer from "../components/Footer/Footer";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 
 function MainLayout() {

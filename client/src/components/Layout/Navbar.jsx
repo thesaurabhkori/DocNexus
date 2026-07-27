@@ -1,6 +1,6 @@
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logo from "../../../assets/logo/logo.png";
+import logo from "../../../dist/assets/logo/logo.png";
 
 function Navbar() {
   const [mobileMenu, setMobileMenu] = useState(false);

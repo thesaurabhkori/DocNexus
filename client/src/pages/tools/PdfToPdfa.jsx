@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import UploadBox from '../../components/common/uploadbox';
+import UploadBox from '../../components/upload/uploadbox';
 
 const PdfToPdfa = () => {
   const navigate = useNavigate();

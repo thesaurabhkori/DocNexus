@@ -1,9 +1,9 @@
 import React from 'react';
-import logo from '../../../assets/logo/logo.png'; 
-import GitHubLogo from '../../../assets/logo/GitHub-logo.png';
-import LinkedInLogo from '../../../assets/logo/Linkedin-logo.png';
-import TwitterLogo from '../../../assets/logo/Twitter-logo.png'; 
-import FacebookLogo from '../../../assets/logo/Facebook-logo.png';
+import logo from "../../../dist/assets/logo/logo.png";
+import GitHubLogo from "../../../dist/assets/logo/GitHub-logo.png";
+import LinkedInLogo from "../../../dist/assets/logo/Linkedin-logo.png";
+import TwitterLogo from "../../../dist/assets/logo/Twitter-logo.png";
+import FacebookLogo from "../../../dist/assets/logo/Facebook-logo.png";
 
 const Footer = () => {
   return (

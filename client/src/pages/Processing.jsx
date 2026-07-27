@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; // 🚀 FIXED: Normal pure axios framework import
 
 const Processing = () => {
   const location = useLocation();
@@ -9,10 +9,10 @@ const Processing = () => {
   const [statusText, setStatusText] = useState("Uploading and processing files...");
 
   const uploadedFiles = location.state?.files || [];
-  const rawFilesData = location.state?.rawFiles || uploadedFiles; // Result page key backup
+  const rawFilesData = location.state?.rawFiles || uploadedFiles; 
   const toolType = location.state?.toolType || 'image-to-pdf';
   
-  // ⚡ ROUTE GUARD: Agar workspace bypass karke user direct yahan aaye, toh wapas pathao
+  // ⚡ ROUTE GUARD
   useEffect(() => {
     if (!location.state || uploadedFiles.length === 0) {
       navigate('/', { replace: true });
@@ -42,7 +42,7 @@ const Processing = () => {
 
   const outputName = getOutputFileName(fileName, toolType, selectedPageCount);
 
-  // 🛡️ TAB CLOSE PREVENTER: Processing ke dauran refresh alert
+  // 🛡️ TAB CLOSE PREVENTER
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (progress < 100 && uploadedFiles.length > 0) {
@@ -54,11 +54,10 @@ const Processing = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [progress, uploadedFiles.length]);
 
-  // ⏳ REAL TIME API INTEGRATION AND PROGRESS MAPPING
+  // ⏳ API INTEGRATION AND PROGRESS MAPPING
   useEffect(() => {
     if (uploadedFiles.length === 0) return;
 
-    // A fake progress buffer layer till server replies back
     const progressInterval = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress >= 90) {
@@ -75,13 +74,11 @@ const Processing = () => {
       try {
         const formData = new FormData();
         
-        // ⚡ DYNAMIC FIELD KEY MUTATOR
-        // Agar Word tool hai toh backend array config ke anusaar 'files' key use hogi, varna default 'images'
-        const formPayloadKey = toolType === 'word-to-pdf' ? 'files' : 'images';
+        // 🚀 FIXED: Multipart form field alignment strictly configured to 'files' key
+        const formPayloadKey = 'files';
 
-        // Multi part files dump with safe extractor logic
+        // Multi part files dump
         uploadedFiles.forEach((file) => {
-          // Extracts Javascript native File object correctly
           const actualFile = file.rawFile || file;
           formData.append(formPayloadKey, actualFile); 
         });
@@ -99,25 +96,16 @@ const Processing = () => {
         }
 
         const backendBaseUrl = "http://localhost:5000";
+        const targetEndpoint = `${backendBaseUrl}/api/${toolType}`;
 
-        // ⚡ CORRECT DYNAMIC TARGET ENDPOINT MAPS
-        let targetEndpoint = `${backendBaseUrl}/api/${toolType}`;
-        if (toolType === 'image-to-pdf') {
-          targetEndpoint = `${backendBaseUrl}/api/image-to-pdf`;
-        } else if (toolType === 'word-to-pdf') {
-          // Naye independent routes path mapping context se link
-          targetEndpoint = `${backendBaseUrl}/api/word-to-pdf`;
-        }
-
-        // 🚀 AXIOS POST CALL WITH TUNNEL BYPASS HEADER
+        // 🚀 FIXED AXIOS POST REFERENCE
         const response = await axios.post(targetEndpoint, formData, {
           headers: { 
             "Content-Type": "multipart/form-data",
-            "X-Tunnel-Skip-Anti-Phishing-Page": "true" // 🌟 Dev Tunnel authorization bypass matrix
+            "X-Tunnel-Skip-Anti-Phishing-Page": "true" 
           }
         });
 
-        // Handle structural key responses (supports standard pdfUrl or native system fileName)
         const fileKeyResponse = response.data?.pdfUrl || response.data?.fileName;
 
         if (response.data && (response.data.success || fileKeyResponse)) {
@@ -125,14 +113,13 @@ const Processing = () => {
           setProgress(100);
           setStatusText("Processing complete!");
 
-          // Navigation mapping to Result screen passing URL state attributes without opening windows
           setTimeout(() => {
             navigate('/result', {
               state: {
                 fileName: outputName,
                 toolType: toolType,
                 pdfUrl: fileKeyResponse, 
-                rawFiles: rawFilesData, // Restored key to display accurate size metadata
+                rawFiles: rawFilesData, 
                 success: true
               }
             });
@@ -143,7 +130,10 @@ const Processing = () => {
       } catch (error) {
         clearInterval(progressInterval);
         console.error("API error during processing pipeline:", error);
-        alert(error.response?.data?.message || error.message || "Something went wrong during data conversion.");
+        
+        const serverErrorMessage = error.response?.data?.message || error.message || "Something went wrong during data conversion.";
+        alert(serverErrorMessage);
+        
         navigate('/', { replace: true });
       }
     };

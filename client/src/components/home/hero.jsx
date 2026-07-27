@@ -1,6 +1,8 @@
 import React from 'react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import heroImg from '../../assets/images/hero.png'; 
+// import heroImg from '../../assets/images/hero.png'; 
+// import heroImg from "../../../dist/assets/hero/hero.png";
+import heroImg from "../../../dist/assets/images/hero.png";
 
 const Hero = () => {
   const features = [

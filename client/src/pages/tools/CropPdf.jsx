@@ -1,6 +1,6 @@
 import React from 'react';
 import { Crop } from 'lucide-react';
-import UploadBox from '../../components/common/uploadbox';
+import UploadBox from "../../components/upload/uploadBox";
 
 const CropPdf = () => {
   return (

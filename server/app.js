@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
-import imageToPdfRoute from "./routes/imageToPdf.route.js";
+import toolRouter from "./routes/tools.route.js"; // 🚀 Master tools dynamic router
 
 dotenv.config();
 
@@ -9,7 +9,6 @@ const app = express();
 
 // ⚡ DEV TUNNELS & DYNAMIC IP CORS FORCE-BYPASS MIDDLEWARE
 app.use((req, res, next) => {
-  // "*" allow karne se mobile phone hotspot network aur badalte hue Dev Tunnel addresses dono chalenge
   res.setHeader("Access-Control-Allow-Origin", "*"); 
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader(
@@ -18,7 +17,6 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Agar request browser ki check (OPTIONS Preflight) hai, toh direct 200 return karo
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -31,8 +29,20 @@ app.use(express.urlencoded({ extended: true }));
 // Converted PDFs aur static files access urls
 app.use("/converted", express.static(path.join(process.cwd(), "converted")));
 
-// Core API Routing Endpoints
-app.use("/api/image-to-pdf", imageToPdfRoute);
+// 🔄 SAFE INTERNAL ENDPOINT REWRITER MIDDLEWARE
+// Frontend ke paths (e.g. /api/word-to-pdf) ko completely safe state parameters me cleanly translate karega
+app.use("/api/:action", (req, res, next) => {
+  if (req.params.action) {
+    const cleanAction = req.params.action.toLowerCase().replace(/[^a-z0-9]/g, "");
+    // Strictly override the dynamic lookup route parameter block
+    req.params.action = cleanAction;
+  }
+  next();
+});
+
+// 🔗 Centralized Master Tool Pipeline Endpoint
+// Base URL path interceptor directly connects to tools dynamic layer
+app.use("/api", toolRouter);
 
 app.get("/", (req, res) => {
   res.send("🚀 DocNexus Backend Running Perfectly");
@@ -41,5 +51,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log("🚀 Server running on http://localhost:" + PORT);
 });
