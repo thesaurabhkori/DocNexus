@@ -20,14 +20,14 @@ const AllToolsModal = ({ open, onClose, tools }) => {
         <div className="absolute right-4 bottom-6 h-64 w-64 rounded-full bg-cyan-300/15 blur-3xl" />
 
         <div className="relative max-h-[calc(100vh-4rem)] overflow-hidden">
-          <div className="relative p-6 sm:p-8 lg:p-10 overflow-y-auto max-h-[calc(100vh-5rem)] all-tools-scroll">
+          <div className="relative p-6 sm:p-8 lg:p-6 overflow-y-auto max-h-[calc(100vh-5rem)] all-tools-scroll">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-indigo-600/80">
                   All Tools
                 </p>
-                <h2 className="mt-1 text-xl font-black text-slate-900/80 sm:text-lg">
-                  Everything you need to work with PDF files in one place.
+                <h2 className="mt-1 text-md font-black text-slate-900/80 sm:text-lg">
+                  Professional PDF solutions for creating, editing, converting, securing, and managing documents effortlessly.
                 </h2>
               </div>
               <button
@@ -40,7 +40,7 @@ const AllToolsModal = ({ open, onClose, tools }) => {
               </button>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:grid-cols-5">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:grid-cols-5">
               {tools.map((tool, idx) => {
                 const Icon = tool.icon;
                 return (
@@ -51,7 +51,7 @@ const AllToolsModal = ({ open, onClose, tools }) => {
                       navigate(tool.path);
                       onClose();
                     }}
-                    className="group relative overflow-hidden rounded-md border border-white/30 bg-white/30 p-5 text-left shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-indigo-200/80 hover:bg-white/60"
+                    className="group relative overflow-hidden rounded-md border border-white/30 bg-white/30 p-4 text-left shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl transition hover:-translate-y-2 hover:border-indigo-200/80 hover:bg-white/60"
                   >
                     <div className={`mb-2 inline-flex h-10 w-10 items-center justify-center rounded-md ${tool.iconBg}`}>
                       <Icon className={`h-6 w-6 ${tool.iconClass}`} aria-hidden="true" />
