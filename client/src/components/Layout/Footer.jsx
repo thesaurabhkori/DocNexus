@@ -4,6 +4,7 @@ import GitHubLogo from "../../../dist/assets/logo/GitHub-logo.png";
 import LinkedInLogo from "../../../dist/assets/logo/Linkedin-logo.png";
 import TwitterLogo from "../../../dist/assets/logo/Twitter-logo.png";
 import FacebookLogo from "../../../dist/assets/logo/Facebook-logo.png";
+import Button from '../../components/common/Button';
 
 const Footer = () => {
   return (
@@ -128,9 +129,9 @@ const Footer = () => {
                 />
               </div>
 
-              <button className="w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold tracking-wide transition-all cursor-pointer">
+              <Button variant="primary" size="md" fullWidth>
                 Subscribe
-              </button>
+              </Button>
             </div>
           </div>
 

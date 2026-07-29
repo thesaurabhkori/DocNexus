@@ -1,5 +1,6 @@
 import React from 'react';
 import { CloudUpload, Sliders, Download, ArrowRight, ChevronRight } from 'lucide-react';
+import Button from '../../components/common/Button';
 
 const HowItWorks = () => {
   const steps = [
@@ -77,12 +78,12 @@ const HowItWorks = () => {
         </div>
 
         {/* CTA BUTTON */}
-        <div className="pt-2">
-          <button className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-indigo-700/30 active:scale-[0.98] transition-all group cursor-pointer text-sm sm:text-base">
-            Try Now for Free
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+        <Button 
+          variant="primary" 
+          rightIcon={<ArrowRight className="w-5 h-5" />}
+        >
+          Try Now for Free
+        </Button>
 
       </div>
     </section>

@@ -52,9 +52,3 @@
 @media (max-width: 640px) {
   .all-tools-scroll::-webkit-scrollbar { width: 8px; }
 }
-
-/* Notes:
-   - Place this CSS in `client/src/index.css` (or your global stylesheet that Tailwind imports).
-   - The class `all-tools-scroll` is applied to the modal's scroll container in `AllToolsModal.jsx`.
-   - Firefox does not support gradient thumbs via `scrollbar-color`; it accepts solid colors only — the rule above falls back to a single purple (`#A855F7`) there.
-*/

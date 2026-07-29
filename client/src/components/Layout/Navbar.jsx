@@ -1,6 +1,7 @@
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 import logo from "../../../dist/assets/logo/logo.png";
+import Button from '../../components/common/Button';
 
 function Navbar() {
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -54,15 +55,13 @@ function Navbar() {
         {/* Desktop Buttons */}
 
         <div className="hidden lg:flex items-center gap-4">
-
-          <button className="font-medium hover:text-violet-600 duration-300">
+          <Button variant="ghost" size="sm">
             Login
-          </button>
+          </Button>
 
-          <button className="px-4 py-1 rounded-md bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium shadow-lg hover:scale-105 duration-300">
+          <Button variant="primary" size="sm">
             Sign Up
-          </button>
-
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
