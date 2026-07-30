@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import HeroIllustration from './HeroIllustration';
@@ -7,10 +9,10 @@ import HeroBalls from './HeroBalls';
 
 const Hero = () => {
   const features = [
-    "30+ PDF Tools",
-    "Works on Any Device",
-    "No Registration Required",
-    "Files are Secure & Private"
+    "20+ Docs Tools",
+    "Quick Conversion",
+    "Instant Access",
+    "Device Friendly"
   ];
 
   return (
@@ -53,13 +55,12 @@ const Hero = () => {
             <Button 
               variant="primary" 
               size="lg" 
-              rightIcon={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}
-            >
-              Start Free
+              rightIcon={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}>
+              Convert Now
             </Button>
 
             <Button variant="secondary" size="lg">
-              Try All Tools
+              Explore Tools
             </Button>
           </div>
         </div>

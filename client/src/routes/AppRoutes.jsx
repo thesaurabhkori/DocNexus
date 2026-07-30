@@ -2,34 +2,33 @@ import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import MainLayout from "../components/Layout/MainLayout";
 
-// Lazy Loaded Pages
+// Home and heavy utility pages can stay lazy loaded
 const Home = lazy(() => import("../Pages/Home"));
 const Processing = lazy(() => import("../Pages/Processing"));
 const Result = lazy(() => import("../Pages/Result"));
 const Error404 = lazy(() => import("../Pages/Error404"));
 
-// Lazy Loaded Tools
-const ImageToPdf = lazy(() => import("../Pages/Tools/ImageToPdf"));
-const PdfToJpg = lazy(() => import("../Pages/Tools/PdfToJpg"));
-const HtmlToPdf = lazy(() => import("../Pages/Tools/HtmlToPdf"));
-const PdfToPpt = lazy(() => import("../Pages/Tools/PdfToPpt"));
-const PdfToPdfa = lazy(() => import("../Pages/Tools/PdfToPdfa"));
-const MergePdf = lazy(() => import("../Pages/Tools/MergePdf"));
-const SplitPdf = lazy(() => import("../Pages/Tools/SplitPdf"));
-const CompressPdf = lazy(() => import("../Pages/Tools/CompressPdf"));
-const RotatePdf = lazy(() => import("../Pages/Tools/RotatePdf"));
-const RemovePages = lazy(() => import("../Pages/Tools/RemovePages"));
-const ExtractPages = lazy(() => import("../Pages/Tools/ExtractPages"));
-const WatermarkPdf = lazy(() => import("../Pages/Tools/WatermarkPdf"));
-const CropPdf = lazy(() => import("../Pages/Tools/CropPdf"));
-const UnlockPdf = lazy(() => import("../Pages/Tools/UnlockPdf"));
-const ProtectPdf = lazy(() => import("../Pages/Tools/ProtectPdf"));
-const SignPdf = lazy(() => import("../Pages/Tools/SignPdf"));
+// Direct imports for tools to eliminate delay/flickering
+import ImageToPdf from "../Pages/Tools/ImageToPdf";
+import PdfToJpg from "../Pages/Tools/PdfToJpg";
+import HtmlToPdf from "../Pages/Tools/HtmlToPdf";
+import PdfToPpt from "../Pages/Tools/PdfToPpt";
+import PdfToPdfa from "../Pages/Tools/PdfToPdfa";
+import MergePdf from "../Pages/Tools/MergePdf";
+import SplitPdf from "../Pages/Tools/SplitPdf";
+import CompressPdf from "../Pages/Tools/CompressPdf";
+import RotatePdf from "../Pages/Tools/RotatePdf";
+import RemovePages from "../Pages/Tools/RemovePages";
+import ExtractPages from "../Pages/Tools/ExtractPages";
+import WatermarkPdf from "../Pages/Tools/WatermarkPdf";
+import CropPdf from "../Pages/Tools/CropPdf";
+import UnlockPdf from "../Pages/Tools/UnlockPdf";
+import ProtectPdf from "../Pages/Tools/ProtectPdf";
+import SignPdf from "../Pages/Tools/SignPdf";
 
-// Lazy Loaded Shared Components
-const UniversalWorkspace = lazy(() => import("../components/common/UniversalWorkspace"));
-
-const UploadBox = lazy(() => import("../components/upload/uploadbox"));
+// Direct import for shared workspace & uploadbox
+import UniversalWorkspace from "../components/common/UniversalWorkspace";
+import UploadBox from "../components/upload/uploadbox";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -45,9 +44,10 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Smooth Loader that matches your DocNexus light UI theme
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-950">
-    <div className="h-12 w-12 animate-spin rounded-full border-4 border-violet-500 border-t-transparent"></div>
+  <div className="min-h-screen flex items-center justify-center bg-slate-50/50 backdrop-blur-sm">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-600 border-t-transparent"></div>
   </div>
 );
 

@@ -2,9 +2,11 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 import logo from "../../../dist/assets/logo/logo.png";
 import Button from '../../components/common/Button';
+import ConvertPdfModal from "./ConvertPdfModal";
 
 function Navbar() {
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false); // Modal State
 
   return (
     <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-md shadow-sm">
@@ -37,17 +39,19 @@ function Navbar() {
 
           <button className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300">
             Compress PDF
-            <ChevronDown size={18} />
           </button>
 
-          <button className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300">
+          {/* Connected Convert PDF Button */}
+          <button 
+            onClick={() => setIsConvertModalOpen(true)}
+            className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300"
+          >
             Convert PDF
-            <ChevronDown size={18} />
+            <ChevronDown className={`transition-transform duration-200 ${isConvertModalOpen ? 'rotate-180' : ''}`} />
           </button>
 
           <button className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300">
             All Tools
-            <ChevronDown size={18} />
           </button>
 
         </nav>
@@ -95,7 +99,14 @@ function Navbar() {
               <ChevronDown size={18} />
             </button>
 
-            <button className="flex items-center justify-between font-medium hover:text-violet-600">
+            {/* Connected Convert PDF Mobile Button */}
+            <button 
+              onClick={() => {
+                setIsConvertModalOpen(true);
+                setMobileMenu(false); // Mobile menu close when modal opens
+              }}
+              className="flex items-center justify-between font-medium hover:text-violet-600"
+            >
               Convert PDF
               <ChevronDown size={18} />
             </button>
@@ -120,6 +131,12 @@ function Navbar() {
         </div>
 
       )}
+
+      {/* Convert PDF Popup Modal */}
+      <ConvertPdfModal 
+        isOpen={isConvertModalOpen} 
+        onClose={() => setIsConvertModalOpen(false)} 
+      />
 
     </header>
   );

@@ -34,7 +34,7 @@ const HeroGridFloor = () => {
 
       {/* Shining Stars & Intersection Dots */}
       <div className="absolute bottom-[20%] left-[25%] text-purple-200 text-lg font-bold animate-pulse">✦</div>
-      <div className="absolute bottom-[12%] right-[22%] text-white text-xl font-bold drop-shadow-[0_0_8px_white] animate-pulse">✦</div>
+      <div className="absolute bottom-[12%] right-[22%] text-white text-xl font-bold drop-shadow-[0_0_8px_white] animate-ping">✦</div>
       <div className="absolute bottom-[30%] right-[35%] text-purple-300 text-xs animate-ping">✦</div>
       <div className="absolute bottom-[8%] left-[42%] text-white text-sm drop-shadow-[0_0_6px_white]">✦</div>
 
