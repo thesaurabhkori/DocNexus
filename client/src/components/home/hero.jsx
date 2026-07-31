@@ -4,8 +4,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import HeroIllustration from './HeroIllustration';
-import HeroGridFloor from './HeroGridFloor';
-import HeroBalls from './HeroBalls';
+// import HeroGridFloor from './HeroGridFloor';
+// import HeroBalls from './HeroBalls';
 
 const Hero = () => {
   const features = [
@@ -19,10 +19,10 @@ const Hero = () => {
     <section className="relative w-full bg-[#fafbfe] overflow-hidden pt-6 pb-8 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
       
       {/* 3D Balls Overlay Component */}
-      <HeroBalls />
+      {/* <HeroBalls /> */}
 
       {/* 3D Perspective Grid Floor Component (Background Layer) */}
-      <HeroGridFloor />
+      {/* <HeroGridFloor /> */}
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full relative z-10">
         

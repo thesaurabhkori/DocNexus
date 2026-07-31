@@ -66,7 +66,11 @@ function AppRoutes() {
             <Route path="pdf-to-jpg" element={<PdfToJpg />} />
             <Route path="jpg-to-pdf" element={<ImageToPdf />} />
             <Route path="html-to-pdf" element={<HtmlToPdf />} />
+            
+            {/* PowerPoint Routes */}
             <Route path="pdf-to-ppt" element={<PdfToPpt />} />
+            <Route path="pdf-to-powerpoint" element={<PdfToPpt />} />
+
             <Route path="pdf-to-pdfa" element={<PdfToPdfa />} />
             <Route path="merge-pdf" element={<MergePdf />} />
             <Route path="split-pdf" element={<SplitPdf />} />
@@ -86,6 +90,7 @@ function AppRoutes() {
             <Route path="excel-to-pdf" element={<UniversalWorkspace />} />
             <Route path="pdf-to-excel" element={<UniversalWorkspace />} />
             <Route path="ppt-to-pdf" element={<UniversalWorkspace />} />
+            <Route path="powerpoint-to-pdf" element={<UniversalWorkspace />} />
 
             {/* Utility Pages */}
             <Route path="upload" element={<UploadBox />} />

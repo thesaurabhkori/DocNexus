@@ -11,7 +11,7 @@ const VARIANTS = {
   
   // Secondary White Glass Button (Try All Tools, Cancel)
   secondary:
-    'bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-800 border border-slate-200/90 shadow-xs',
+    'bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-800 border border-purple-500/50 shadow-xs',
   
   // Glassmorphic Blur Button (For Video / Dynamic Hero Overlays)
   glass:
