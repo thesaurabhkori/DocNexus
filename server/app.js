@@ -1,16 +1,20 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import {
-  helmetMiddleware,
-  corsMiddleware,
-  compressionMiddleware,
-  rateLimiter,
-  hppMiddleware,
-} from "./config/security.config.js";
 
+// Centralized Config & Security Imports
+import { security, envConfig, logger } from "./config/index.js";
+import { outputManager } from "./managers/index.js";
+
+// Middlewares
 import loggerMiddleware from "./middlewares/logger.middleware.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+
+// Monitoring Router
+import healthRouter from "./monitoring/health.route.js";
+
+// Job Status Polling Router (Worker Thread Architecture)
+import jobRouter from "./routes/job.route.js";
 
 const app = express();
 
@@ -18,41 +22,47 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ==========================================
-// 1. EARLY SECURITY LAYER (Rate Limiter & Dynamic CORS)
+// 1. HEALTH CHECK & MONITORING ENDPOINTS
+// (Mounted early so load balancers / monitoring tools can access without rate limiting)
 // ==========================================
-app.use(rateLimiter);
-app.use(corsMiddleware);
+app.use("/", healthRouter);
 
 // ==========================================
-// 2. HTTP HEADER SECURITY (HELMET)
+// 2. EARLY SECURITY LAYER (Rate Limiter & Dynamic CORS)
 // ==========================================
-app.use(helmetMiddleware);
+app.use(security.rateLimiter);
+app.use(security.corsMiddleware);
 
 // ==========================================
-// 3. LOGGER MIDDLEWARE
+// 3. HTTP HEADER SECURITY (HELMET)
+// ==========================================
+app.use(security.helmetMiddleware);
+
+// ==========================================
+// 4. LOGGER MIDDLEWARE
 // ==========================================
 app.use(loggerMiddleware);
 
 // ==========================================
-// 4. BODY PARSERS
+// 5. BODY PARSERS
 // ==========================================
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // ==========================================
-// 5. HTTP PARAMETER POLLUTION (HPP)
+// 6. HTTP PARAMETER POLLUTION (HPP)
 // ==========================================
-app.use(hppMiddleware);
+app.use(security.hppMiddleware);
 
 // ==========================================
-// 6. RESPONSE COMPRESSION
+// 7. RESPONSE COMPRESSION
 // ==========================================
-app.use(compressionMiddleware);
+app.use(security.compressionMiddleware);
 
 // ==========================================
-// 7. SERVE CONVERTED FILES (STATIC FILES)
+// 8. SERVE CONVERTED FILES (STATIC FILES)
 // ==========================================
-const convertedDir = path.join(process.cwd(), "converted");
+const convertedDir = outputManager.convertedDir || path.join(process.cwd(), "converted");
 
 // Folder ki availability ensure karein taaki crashes na hon
 if (!fs.existsSync(convertedDir)) {
@@ -68,7 +78,12 @@ app.use(
 );
 
 // ==========================================
-// 8. MASTER MODULE AUTO-LOADER
+// 9. JOB QUEUE POLLING ROUTE
+// ==========================================
+app.use("/api/jobs", jobRouter);
+
+// ==========================================
+// 10. MASTER MODULE AUTO-LOADER
 // ==========================================
 const ALL_TOOLS = [
   "image-to-pdf",
@@ -112,9 +127,9 @@ for (const toolSlug of ALL_TOOLS) {
         app.use(`/api/${legacySlug}`, moduleRoute.default);
       }
 
-      console.log(`✅ Loaded Module : ${toolSlug}`);
+      logger.info(`✅ Loaded Module : ${toolSlug}`);
     } catch (error) {
-      console.error(`❌ Module '${toolSlug}' loading fail hua:`, error.message);
+      logger.error(`❌ Module '${toolSlug}' loading fail hua: ${error.message}`);
     }
   } else {
     // Handling non-migrated / under maintenance endpoints
@@ -131,19 +146,20 @@ for (const toolSlug of ALL_TOOLS) {
 }
 
 // ==========================================
-// 9. HEALTH CHECK ROUTE
+// 11. ROOT HEARTBEAT ROUTE
 // ==========================================
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     status: "online",
     engine: "DocNexus Backend Engine",
+    environment: envConfig.nodeEnv,
     timestamp: new Date().toISOString(),
   });
 });
 
 // ==========================================
-// 10. GLOBAL 404 HANDLER FOR UNMATCHED ROUTES
+// 12. GLOBAL 404 HANDLER FOR UNMATCHED ROUTES
 // ==========================================
 app.all("/api/*", (req, res) => {
   res.status(404).json({
@@ -153,7 +169,7 @@ app.all("/api/*", (req, res) => {
 });
 
 // ==========================================
-// 11. GLOBAL ERROR HANDLING MIDDLEWARE
+// 13. GLOBAL ERROR HANDLING MIDDLEWARE
 // ==========================================
 app.use(errorMiddleware);
 

@@ -1,10 +1,12 @@
-import dotenv from "dotenv";
-dotenv.config();
+import { envConfig } from "./env.config.js";
 
 /**
  * Centralized configuration for LibreOffice binary execution.
+ * Inherits validated values from centralized envConfig.
  */
-export const LIBREOFFICE_CONFIG = {
-  binaryPath: process.env.LIBREOFFICE_PATH || "libreoffice",
-  timeoutMs: parseInt(process.env.LIBREOFFICE_TIMEOUT_MS, 10) || 60000,
-};
+export const LIBREOFFICE_CONFIG = Object.freeze({
+  binaryPath: envConfig.libreOfficePath,
+  timeoutMs: envConfig.libreOfficeTimeoutMs || 60000,
+});
+
+export const libreOfficeConfig = LIBREOFFICE_CONFIG;

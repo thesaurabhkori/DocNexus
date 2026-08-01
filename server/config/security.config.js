@@ -3,6 +3,7 @@ import cors from "cors";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 import hpp from "hpp";
+import { envConfig } from "./env.config.js";
 
 /**
  * 1. HELMET MIDDLEWARE
@@ -28,16 +29,12 @@ export const helmetMiddleware = helmet({
 
 /**
  * 2. CORS MIDDLEWARE
- * Restricts Cross-Origin Requests to allowed client domains.
+ * Restricts Cross-Origin Requests to allowed client domains defined in envConfig.
  */
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
-  : ["http://localhost:3000", "http://localhost:5173"];
-
 export const corsMiddleware = cors({
   origin: (origin, callback) => {
-    // Allow server-to-server or non-browser requests (e.g., Postman, Curl) with no origin
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow server-to-server, postman, or non-browser requests with no origin
+    if (!origin || envConfig.allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(
@@ -89,6 +86,16 @@ export const rateLimiter = rateLimit({
  * Protects against HTTP Parameter Pollution by converting duplicate query keys to clean single values.
  */
 export const hppMiddleware = hpp({
-  // Whitelist specific query parameters that are allowed to have multiple values (e.g., arrays)
   whitelist: ["files", "page", "limit", "sort", "filter"],
 });
+
+/**
+ * Combined Security Layer export for config/index.js barrel
+ */
+export const security = {
+  helmetMiddleware,
+  corsMiddleware,
+  compressionMiddleware,
+  rateLimiter,
+  hppMiddleware,
+};
