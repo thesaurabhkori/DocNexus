@@ -1,6 +1,6 @@
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logo from "../../../dist/assets/logo/logo.png";
+import logo from "../../assets/logo/logo.png";
 import Button from '../../components/common/Button';
 import ConvertPdfModal from "./ConvertPdfModal";
 
@@ -37,7 +37,9 @@ function Navbar() {
             Home
           </a>
 
-          <button className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300">
+          <button 
+            
+            className="flex items-center gap-1 font-medium hover:text-violet-600 duration-300">
             Compress PDF
           </button>
 

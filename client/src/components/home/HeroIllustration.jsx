@@ -1,13 +1,12 @@
 import React from 'react';
 
 // Images Import Path
-import basePodium from '../../../dist/assets/images/Docs-base.png';
-import paperSheet from '../../../dist/assets/logo/Logo-cover.png';
-import mainLogo from '../../../dist/assets/logo/logo.png';
-import wordLogo from '../../../dist/assets/logo/Word-logo.png';
-import excelLogo from '../../../dist/assets/logo/Excel-logo.png';
-import pptLogo from '../../../dist/assets/logo/Power-point-logo.png';
-import imageLogo from '../../../dist/assets/logo/image-logo.png';
+import basePodium from '../../assets/logo/base-logo.png';
+import mainLogo from '../../assets/logo/logo.png';
+import wordLogo from '../../assets/logo/Word-logo.png';
+import excelLogo from '../../assets/logo/Excel-logo.png';
+import pptLogo from '../../assets/logo/Power-point-logo.png';
+import imageLogo from '../../assets/logo/image-logo.png';
 
 const HeroIllustration = () => {
   return (
@@ -43,14 +42,9 @@ const HeroIllustration = () => {
       {/* 3. CENTER PAPER SHEET + LOGO */}
       <div className="absolute bottom-[34%] sm:bottom-[34%] left-1/2 -translate-x-1/2 w-[38%] sm:w-[40%] z-20 flex items-center justify-center animate-[float_6s_ease-in-out_infinite]">
         {/* White Paper Sheet */}
-        <img
-          src={paperSheet}
-          alt="Paper Document"
-          className="w-full h-auto object-contain drop-shadow-2xl"
-          draggable="false"
-        />
+        <div className="w-full max-w-[150px] aspect-[0.85] mx-auto rounded-[5px] bg-white/95 shadow-2xl shadow-purple-500/20 border border-slate-200/80 drop-shadow-2xl" />
         {/* Center Main 'D' Logo */}
-        <div className="absolute w-[40%] h-[40%] translate-y-5 sm:translate-y-6 overflow-hidden drop-shadow-md">
+        <div className="absolute w-[60%] h-[60%] translate-y-5 sm:translate-y-6 overflow-hidden drop-shadow-md">
           <img
             src={mainLogo}
             alt="DocNexus Logo"
@@ -65,25 +59,25 @@ const HeroIllustration = () => {
       {/* Top Left: Word */}
       <div className="absolute top-[12%] left-[12%] z-30 flex flex-col items-center gap-1 bg-white/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl shadow-lg shadow-purple-500/10 border border-white/80 animate-[float_5s_ease-in-out_0.2s_infinite]">
         <img src={wordLogo} alt="Word" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-contain" />
-        <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Word</span>
+        {/* <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Word</span> */}
       </div>
 
       {/* Top Right: Excel */}
       <div className="absolute top-[12%] right-[12%] z-30 flex flex-col items-center gap-1 bg-white/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl shadow-lg shadow-purple-500/10 border border-white/80 animate-[float_5.5s_ease-in-out_0.7s_infinite]">
         <img src={excelLogo} alt="Excel" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-contain" />
-        <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Excel</span>
+        {/* <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Excel</span> */}
       </div>
 
       {/* Bottom Left: PowerPoint */}
       <div className="absolute top-[38%] left-[6%] z-30 flex flex-col items-center gap-1 bg-white/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl shadow-lg shadow-purple-500/10 border border-white/80 animate-[float_6s_ease-in-out_1.2s_infinite]">
         <img src={pptLogo} alt="PowerPoint" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-contain" />
-        <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">PowerPoint</span>
+        {/* <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">PowerPoint</span> */}
       </div>
 
       {/* Bottom Right: Image */}
       <div className="absolute top-[38%] right-[6%] z-30 flex flex-col items-center gap-1 bg-white/90 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl shadow-lg shadow-purple-500/10 border border-white/80 animate-[float_5.2s_ease-in-out_0.5s_infinite]">
         <img src={imageLogo} alt="Image" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-contain" />
-        <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Image</span>
+        {/* <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-700">Image</span> */}
       </div>
 
       {/* 5. BACKGROUND SPARKLES (Updated animations & offsets) */}

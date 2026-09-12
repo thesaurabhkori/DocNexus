@@ -48,8 +48,10 @@ const Result = () => {
       return pdfUrl;
     }
     const backendBaseUrl = "http://localhost:5000";
-    // Checks if path needs folder mappings prefixes correctly
-    return pdfUrl.startsWith('converted/') ? `${backendBaseUrl}/${pdfUrl}` : `${backendBaseUrl}/converted/${pdfUrl}`;
+    const normalizedPath = pdfUrl.startsWith('/') ? pdfUrl : `/${pdfUrl}`;
+    return normalizedPath.startsWith('/converted/')
+      ? `${backendBaseUrl}${normalizedPath}`
+      : `${backendBaseUrl}/converted${normalizedPath}`;
   };
 
   const finalDownloadUrl = getFullDownloadUrl();

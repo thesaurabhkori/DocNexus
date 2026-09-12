@@ -7,7 +7,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 const VARIANTS = {
   // Main Purple Brand Button (Get Started Free, Sign Up, Try Now)
   primary:
-    'bg-[#6338F6] hover:bg-[#5229E0] active:bg-[#4319C6] text-white border border-transparent shadow-md shadow-[#6338F6]/20 hover:shadow-lg hover:shadow-[#6338F6]/30',
+    'bg-[#6338F6] hover:bg-[#5229E0] active:bg-[#4319C6] text-white border border-transparent shadow-[0_2px_12px_rgba(0,0,0,0.2)] hover:shadow-lg hover:shadow-[#6338F6]/80',
   
   // Secondary White Glass Button (Try All Tools, Cancel)
   secondary:
@@ -36,10 +36,10 @@ const VARIANTS = {
 
 // Size Presets
 const SIZES = {
-  sm: 'text-xs px-3.5 py-2 gap-1.5 rounded-md min-h-[36px] whitespace-nowrap',
-  md: 'text-sm px-5 py-2.5 gap-2 rounded-lg min-h-[42px] whitespace-nowrap',
+  sm: 'text-xs px-3.5 py-2 gap-1.5 rounded-full min-h-[36px] whitespace-nowrap',
+  md: 'text-sm px-5 py-2.5 gap-2 rounded-full min-h-[42px] whitespace-nowrap',
   // Mobile par text crash na ho isliye text-sm sm:text-base aur whitespace-nowrap add kiya
-  lg: 'text-sm sm:text-base px-5 sm:px-8 py-3.5 gap-2 rounded-sm min-h-[48px] sm:min-h-[52px] whitespace-nowrap',
+  lg: 'text-sm sm:text-base px-5 sm:px-8 py-3.5 gap-2 rounded-full min-h-[48px] sm:min-h-[52px] whitespace-nowrap',
 };
 
 // Spinner Component for Loading State

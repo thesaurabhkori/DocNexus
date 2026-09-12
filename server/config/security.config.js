@@ -42,7 +42,14 @@ export const corsMiddleware = cors({
     );
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "x-tunnel-skip-anti-phishing-page", // <-- ALLOWED FOR LOCALTUNNEL / BROWSER EXTENSIONS
+    "bypass-tunnel-reminder",
+  ],
   exposedHeaders: ["Content-Disposition"],
   credentials: true,
   maxAge: 86400, // Cache preflight checks for 24 hours

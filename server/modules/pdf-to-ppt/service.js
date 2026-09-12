@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
 import { safeUnlink, scheduleCleanUp } from "../../shared/utils/cleanup.util.js";
 
@@ -31,11 +31,18 @@ class PdfToPptService {
       const defaultLibreOfficeOutputName = `${path.basename(file.path, path.extname(file.path))}.pptx`;
       const defaultLibreOfficeOutputPath = path.join(this.outputDir, defaultLibreOfficeOutputName);
 
-      const cmd = `${LIBREOFFICE_CONFIG.binaryPath} --headless --convert-to pptx:"Impress MS PowerPoint 2007 XML" --outdir "${this.outputDir}" "${absoluteInputPath}"`;
+      const commandArgs = [
+        "--headless",
+        "--convert-to",
+        'pptx:"Impress MS PowerPoint 2007 XML"',
+        "--outdir",
+        this.outputDir,
+        absoluteInputPath,
+      ];
 
-      console.log(`[EXECUTION] Initializing PDF-to-PPT conversion matrix: ${cmd}`);
+      console.log(`[EXECUTION] Initializing PDF-to-PPT conversion matrix: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
 
-      exec(cmd, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
+      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
         console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
         if (stderr) console.warn(`[LIBREOFFICE STDERR]:\n${stderr}`);
 

@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
 // Centralized Config & Security Imports
 import { security, envConfig, logger } from "./config/index.js";
@@ -17,6 +18,7 @@ import healthRouter from "./monitoring/health.route.js";
 import jobRouter from "./routes/job.route.js";
 
 const app = express();
+const serverRoot = path.dirname(fileURLToPath(import.meta.url));
 
 // Trust reverse proxy (Nginx, Cloudflare, Render, Vercel)
 app.set("trust proxy", 1);
@@ -62,7 +64,7 @@ app.use(security.compressionMiddleware);
 // ==========================================
 // 8. SERVE CONVERTED FILES (STATIC FILES)
 // ==========================================
-const convertedDir = outputManager.convertedDir || path.join(process.cwd(), "converted");
+const convertedDir = outputManager.convertedDir || path.join(serverRoot, "converted");
 
 // Folder ki availability ensure karein taaki crashes na hon
 if (!fs.existsSync(convertedDir)) {
@@ -109,7 +111,7 @@ const ALL_TOOLS = [
   "sign-pdf",
 ];
 
-const modulesDirPath = path.join(process.cwd(), "modules");
+const modulesDirPath = path.join(serverRoot, "modules");
 
 for (const toolSlug of ALL_TOOLS) {
   const routeFilePath = path.join(modulesDirPath, toolSlug, "route.js");
@@ -161,7 +163,7 @@ app.get("/", (req, res) => {
 // ==========================================
 // 12. GLOBAL 404 HANDLER FOR UNMATCHED ROUTES
 // ==========================================
-app.all("/api/*", (req, res) => {
+app.use("/api", (req, res) => {
   res.status(404).json({
     success: false,
     message: `API Route '${req.originalUrl}' nahi mila.`,

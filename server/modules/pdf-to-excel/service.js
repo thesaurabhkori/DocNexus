@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
 import { safeUnlink, scheduleCleanUp } from "../../shared/utils/cleanup.util.js";
 
@@ -31,11 +31,18 @@ class PdfToExcelService {
       const defaultLibreOfficeOutputName = `${path.basename(file.path, path.extname(file.path))}.xlsx`;
       const defaultLibreOfficeOutputPath = path.join(this.outputDir, defaultLibreOfficeOutputName);
 
-      const cmd = `${LIBREOFFICE_CONFIG.binaryPath} --headless --convert-to xlsx:"Calc Office Open XML" --outdir "${this.outputDir}" "${absoluteInputPath}"`;
+      const commandArgs = [
+        "--headless",
+        "--convert-to",
+        'xlsx:"Calc Office Open XML"',
+        "--outdir",
+        this.outputDir,
+        absoluteInputPath,
+      ];
 
-      console.log(`[EXECUTION] Initializing PDF-to-Excel conversion matrix: ${cmd}`);
+      console.log(`[EXECUTION] Initializing PDF-to-Excel conversion matrix: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
 
-      exec(cmd, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
+      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
         console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
         if (stderr) console.warn(`[LIBREOFFICE STDERR]:\n${stderr}`);
 

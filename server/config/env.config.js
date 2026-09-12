@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
-// Load environment variables from .env file
-dotenv.config();
+const serverRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+dotenv.config({ path: path.resolve(serverRoot, "..", ".env") });
 
 /**
  * Validates required environment variables and builds a typed, frozen configuration object.
@@ -11,17 +12,24 @@ dotenv.config();
 const validateAndLoadEnv = () => {
   const errors = [];
 
-  // Required variables checklist
-  const requiredVars = [
-    "PORT",
-    "NODE_ENV",
-    "LIBREOFFICE_PATH",
-    "MAX_FILE_SIZE",
-    "UPLOAD_DIR",
-    "CONVERTED_DIR",
-    "TEMP_DIR",
-    "LOG_LEVEL",
-  ];
+  const defaults = {
+    PORT: "5000",
+    NODE_ENV: "development",
+    LIBREOFFICE_PATH:
+    process.env.LIBREOFFICE_PATH ||
+    "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
+    MAX_FILE_SIZE: String(100 * 1024 * 1024),
+    UPLOAD_DIR: "uploads",
+    CONVERTED_DIR: "converted",
+    TEMP_DIR: "temp",
+    LOG_LEVEL: "info",
+  };
+
+  for (const [key, value] of Object.entries(defaults)) {
+    process.env[key] ||= value;
+  }
+
+  const requiredVars = Object.keys(defaults);
 
   // Verify presence of required variables
   for (const envVar of requiredVars) {
@@ -62,7 +70,7 @@ const validateAndLoadEnv = () => {
   }
 
   // Ensure upload and conversion directories exist on storage layer
-  const rootDir = process.cwd();
+  const rootDir = serverRoot;
   const uploadDir = path.resolve(rootDir, process.env.UPLOAD_DIR);
   const convertedDir = path.resolve(rootDir, process.env.CONVERTED_DIR);
   const tempDir = path.resolve(rootDir, process.env.TEMP_DIR);

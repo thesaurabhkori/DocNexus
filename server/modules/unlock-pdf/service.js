@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { PDFDocument } from "pdf-lib";
 import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
 import { safeUnlink, scheduleCleanUp } from "../../shared/utils/cleanup.util.js";
@@ -62,11 +62,18 @@ class UnlockPdfService {
     return new Promise((resolve, reject) => {
       const uName = `Unlocked-${Date.now()}.pdf`;
       const uPath = path.join(this.outputDir, uName);
-      const cmd = `${LIBREOFFICE_CONFIG.binaryPath} --headless --convert-to pdf --outdir "${this.outputDir}" "${absoluteInputPath}"`;
+      const commandArgs = [
+        "--headless",
+        "--convert-to",
+        "pdf",
+        "--outdir",
+        this.outputDir,
+        absoluteInputPath,
+      ];
 
-      console.log(`[EXECUTION] Executing document security credential bypass pipeline: ${cmd}`);
+      console.log(`[EXECUTION] Executing document security credential bypass pipeline: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
 
-      exec(cmd, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
+      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
         console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
         if (stderr) console.error(`[LIBREOFFICE STDERR]:\n${stderr}`);
 

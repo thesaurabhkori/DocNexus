@@ -10,6 +10,9 @@ process.env.PORT = "5001";
 process.env.UPLOAD_DIR = "tests/fixtures/uploads";
 process.env.CONVERTED_DIR = "tests/fixtures/converted";
 process.env.TEMP_DIR = "tests/fixtures/temp";
+process.env.LIBREOFFICE_PATH = process.env.LIBREOFFICE_PATH || "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+process.env.MAX_FILE_SIZE = String(10 * 1024 * 1024);
+process.env.LOG_LEVEL = "error";
 
 // Suppress console logs during test suite runs
 global.console = {

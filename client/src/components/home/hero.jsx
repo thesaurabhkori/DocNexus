@@ -17,12 +17,9 @@ const Hero = () => {
 
   return (
     <section className="relative w-full bg-[#fafbfe] overflow-hidden pt-6 pb-8 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
-      
-      {/* 3D Balls Overlay Component */}
-      {/* <HeroBalls /> */}
-
-      {/* 3D Perspective Grid Floor Component (Background Layer) */}
-      {/* <HeroGridFloor /> */}
+    
+      {/* <HeroBalls />
+      <HeroGridFloor /> */}
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full relative z-10">
         

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { PDFDocument } from "pdf-lib";
 import sharp from "sharp";
 import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
@@ -107,11 +107,18 @@ class SignPdfService {
     return new Promise((resolve, reject) => {
       const sName = `Signed-${Date.now()}.pdf`;
       const sPath = path.join(this.outputDir, sName);
-      const cmd = `${LIBREOFFICE_CONFIG.binaryPath} --headless --convert-to pdf --outdir "${this.outputDir}" "${absoluteInputPath}"`;
+      const commandArgs = [
+        "--headless",
+        "--convert-to",
+        "pdf",
+        "--outdir",
+        this.outputDir,
+        absoluteInputPath,
+      ];
 
-      console.log(`[EXECUTION] Executing digital signature transformation pipeline: ${cmd}`);
+      console.log(`[EXECUTION] Executing digital signature transformation pipeline: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
 
-      exec(cmd, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
+      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
         console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
         if (stderr) console.error(`[LIBREOFFICE STDERR]:\n${stderr}`);
 

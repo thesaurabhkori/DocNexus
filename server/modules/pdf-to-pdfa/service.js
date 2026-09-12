@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
 import { safeUnlink, scheduleCleanUp } from "../../shared/utils/cleanup.util.js";
 
@@ -34,11 +34,18 @@ class PdfToPdfaService {
 
       // Apply LibreOffice PDF/A-1b export filter specification
       const filterSpec = 'pdf:writer_pdf_Export:{"SelectPdfVersion":{"type":"long","value":"1"}}';
-      const cmd = `${LIBREOFFICE_CONFIG.binaryPath} --headless --convert-to '${filterSpec}' --outdir "${this.outputDir}" "${absoluteInputPath}"`;
+      const commandArgs = [
+        "--headless",
+        "--convert-to",
+        filterSpec,
+        "--outdir",
+        this.outputDir,
+        absoluteInputPath,
+      ];
 
-      console.log(`[EXECUTION] Initializing PDF-to-PDFA archival conversion matrix: ${cmd}`);
+      console.log(`[EXECUTION] Initializing PDF-to-PDFA archival conversion matrix: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
 
-      exec(cmd, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
+      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
         console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
         if (stderr) console.warn(`[LIBREOFFICE STDERR]:\n${stderr}`);
 

@@ -23,7 +23,7 @@ export const safeUnlink = async (filePath) => {
  * @param {number} [delayMs=900000] - Delay in ms (defaults to 15 minutes).
  */
 export const scheduleCleanUp = (filePath, fileName, delayMs = 15 * 60 * 1000) => {
-  setTimeout(async () => {
+  const timer = setTimeout(async () => {
     try {
       await safeUnlink(filePath);
       console.log(`[SCHEDULED CLEANUP] Successfully removed expired asset: ${fileName || filePath}`);
@@ -31,4 +31,7 @@ export const scheduleCleanUp = (filePath, fileName, delayMs = 15 * 60 * 1000) =>
       console.error(`[SCHEDULED CLEANUP FAULT] Failed to delete expired asset: ${filePath}`, err);
     }
   }, delayMs);
+
+  // Retention must not prevent a graceful server shutdown or test completion.
+  timer.unref?.();
 };
