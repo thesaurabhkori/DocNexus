@@ -95,6 +95,15 @@ const Processing = () => {
           formData.append("mergePdf", String(settings.mergePdf || false));
         }
 
+        if (toolType === 'pdf-to-jpg') {
+          const jpgSettings = location.state?.jpgSettings || {};
+          formData.append('format', jpgSettings.format || 'jpeg');
+          formData.append('quality', String(jpgSettings.quality ?? 90));
+          if (Array.isArray(jpgSettings.pages)) {
+            formData.append('pages', JSON.stringify(jpgSettings.pages));
+          }
+        }
+
         const backendBaseUrl = "http://localhost:5000";
         const targetEndpoint = `${backendBaseUrl}/api/${toolType}`;
 
@@ -107,6 +116,9 @@ const Processing = () => {
         });
 
         const fileKeyResponse = response.data?.pdfUrl || response.data?.fileName;
+        const serverOutputFileName = response.data?.fileName
+          ? String(response.data.fileName).split('/').pop()
+          : (response.data?.pdfUrl ? String(response.data.pdfUrl).split('/').pop() : outputName);
 
         if (response.data && (response.data.success || fileKeyResponse)) {
           clearInterval(progressInterval);
@@ -116,7 +128,7 @@ const Processing = () => {
           setTimeout(() => {
             navigate('/result', {
               state: {
-                fileName: outputName,
+                fileName: serverOutputFileName || outputName,
                 toolType: toolType,
                 pdfUrl: fileKeyResponse, 
                 rawFiles: rawFilesData, 

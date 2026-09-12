@@ -1,8 +1,51 @@
 import fs from "fs";
 import path from "path";
-import { execFile } from "child_process";
-import { LIBREOFFICE_CONFIG } from "../../config/libreoffice.config.js";
+import AdmZip from "adm-zip";
+import { fromPath } from "pdf2pic";
 import { safeUnlink, scheduleCleanUp } from "../../shared/utils/cleanup.util.js";
+
+const parseSelectedPages = (pagesValue) => {
+  if (Array.isArray(pagesValue)) {
+    return pagesValue
+      .map((page) => Number(page))
+      .filter((page) => Number.isInteger(page) && page > 0);
+  }
+
+  if (typeof pagesValue === "string") {
+    try {
+      const parsed = JSON.parse(pagesValue);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((page) => Number(page))
+          .filter((page) => Number.isInteger(page) && page > 0);
+      }
+    } catch (error) {
+      return [];
+    }
+  }
+
+  return [];
+};
+
+export const normalizePdfToJpgFormat = (formatValue) => {
+  const normalized = String(formatValue || "jpg").trim().toLowerCase();
+
+  if (normalized === "png") return "png";
+  if (normalized === "jpeg") return "jpeg";
+  return "jpg";
+};
+
+export const resolvePdfToJpgOutputName = (sourceName, formatValue, pages = [], actualImageCount = 0) => {
+  const baseName = sourceName.includes(".") ? sourceName.slice(0, sourceName.lastIndexOf(".")) : sourceName;
+  const selectedPages = parseSelectedPages(pages);
+
+  if (selectedPages.length > 1 && actualImageCount > 1) {
+    return `${baseName}.zip`;
+  }
+
+  const normalized = normalizePdfToJpgFormat(formatValue);
+  return `${baseName}.${normalized === "png" ? "png" : normalized === "jpeg" ? "jpeg" : "jpg"}`;
+};
 
 class PdfToJpgService {
   constructor() {
@@ -13,87 +56,124 @@ class PdfToJpgService {
     }
   }
 
-  /**
-   * Converts a PDF document into JPG raster image maps.
-   * @param {Array<Express.Multer.File>} files - Uploaded file array containing PDF document.
-   * @param {Object} bodyParams - Options like format, dpi, quality.
-   * @returns {Promise<string>} Generated output JPG file name.
-   */
   async convertPdfToJpg(files, bodyParams = {}) {
+    if (!files || files.length === 0) {
+      throw new Error("No PDF file provided for JPG conversion.");
+    }
+
     const file = files[0];
-    const absoluteInputPath = path.resolve(file.path);
-    const fileBaseName = path.basename(file.filename, path.extname(file.filename));
+    const sourcePath = path.resolve(file.path);
+    const fileBaseName = path.basename(file.originalname || file.filename, path.extname(file.originalname || file.filename));
+    const targetFormat = normalizePdfToJpgFormat(bodyParams.format || bodyParams.outputFormat || "jpg");
+    const selectedPages = parseSelectedPages(bodyParams.pages);
+    const pagesToConvert = selectedPages.length > 0 ? selectedPages : -1;
+    const finalBaseName = fileBaseName;
 
-    return new Promise((resolve, reject) => {
-      const outName = `${fileBaseName}.jpg`;
-      const outPath = path.join(this.outputDir, outName);
+    try {
+      const convert = fromPath(sourcePath, {
+        density: 180,
+        saveFilename: finalBaseName,
+        savePath: this.outputDir,
+        format: targetFormat,
+        width: 1600,
+        height: 1600,
+        preserveAspectRatio: true,
+        quality: Number(bodyParams.quality || 90),
+      });
 
-      const defaultLibreOfficeOutputName = `${path.basename(file.path, path.extname(file.path))}.jpg`;
-      const defaultLibreOfficeOutputPath = path.join(this.outputDir, defaultLibreOfficeOutputName);
+      const result = await convert.bulk(pagesToConvert, { responseType: "image" });
+      const generatedFiles = Array.isArray(result)
+        ? result
+            .filter((entry) => entry && entry.path)
+            .sort((a, b) => (a.page ?? 0) - (b.page ?? 0))
+        : result && result.path
+          ? [result]
+          : [];
 
-      const commandArgs = [
-        "--headless",
-        "--convert-to",
-        "jpg",
-        "--outdir",
-        this.outputDir,
-        absoluteInputPath,
-      ];
+      if (generatedFiles.length === 0) {
+        throw new Error("PDF-to-image conversion produced no output files.");
+      }
 
-      console.log(`[EXECUTION] Compiling PDF pages to JPG Raster Maps: ${LIBREOFFICE_CONFIG.binaryPath} ${commandArgs.join(" ")}`);
+      const singleOutputName = resolvePdfToJpgOutputName(`${finalBaseName}.pdf`, targetFormat, selectedPages, 1);
+      const singleOutputPath = path.join(this.outputDir, singleOutputName);
 
-      execFile(LIBREOFFICE_CONFIG.binaryPath, commandArgs, { timeout: LIBREOFFICE_CONFIG.timeoutMs }, async (err, stdout, stderr) => {
-        console.log(`[LIBREOFFICE STDOUT]:\n${stdout}`);
-        if (stderr) console.warn(`[LIBREOFFICE STDERR]:\n${stderr}`);
-
-        // Purge staging upload file immediately after execution
-        await safeUnlink(file.path);
-
-        // Standard Case Validation Guard
-        if (fs.existsSync(outPath)) {
-          scheduleCleanUp(outPath, outName);
-          return resolve(outName);
-        } else if (fs.existsSync(defaultLibreOfficeOutputPath)) {
-          fs.renameSync(defaultLibreOfficeOutputPath, outPath);
-          scheduleCleanUp(outPath, outName);
-          return resolve(outName);
+      if (generatedFiles.length === 1) {
+        const singleImage = generatedFiles[0].path;
+        const finalImagePath = path.join(this.outputDir, singleOutputName);
+        if (singleImage !== finalImagePath && fs.existsSync(singleImage)) {
+          fs.renameSync(singleImage, finalImagePath);
         }
 
-        // Advanced Recovery Loop: Detect truncated/misnamed output files in output directory
-        try {
-          const filesInDir = fs.readdirSync(this.outputDir);
-          const nameFirstToken = fileBaseName.split(".")[0].toLowerCase();
+        await safeUnlink(file.path);
+        scheduleCleanUp(finalImagePath, singleOutputName);
+        return singleOutputName;
+      }
 
-          const misnamedFile = filesInDir.find(
-            (f) =>
-              (f.toLowerCase().endsWith(".jpg") || f.toLowerCase().endsWith(".jpeg")) &&
-              f.toLowerCase().startsWith(nameFirstToken)
-          );
+      const zipOutputName = resolvePdfToJpgOutputName(`${finalBaseName}.pdf`, targetFormat, selectedPages, generatedFiles.length);
+      const zipOutputPath = path.join(this.outputDir, zipOutputName);
+      const zipArchive = new AdmZip();
 
-          if (misnamedFile) {
-            const currentGeneratedPath = path.join(this.outputDir, misnamedFile);
-            console.log(`[RECOVERY INTERCEPT] Truncated runtime format active: '${misnamedFile}'. Syncing names layout...`);
+      generatedFiles.forEach((generatedFile) => {
+        if (fs.existsSync(generatedFile.path)) {
+          zipArchive.addLocalFile(generatedFile.path, "", path.basename(generatedFile.path));
+        }
+      });
 
-            fs.renameSync(currentGeneratedPath, outPath);
+      zipArchive.writeZip(zipOutputPath);
+
+      generatedFiles.forEach((generatedFile) => {
+        if (fs.existsSync(generatedFile.path)) {
+          safeUnlink(generatedFile.path);
+        }
+      });
+
+      await safeUnlink(file.path);
+      scheduleCleanUp(zipOutputPath, zipOutputName);
+      return zipOutputName;
+    } catch (error) {
+      console.error("pdf2pic conversion failed, falling back to LibreOffice:", error);
+
+      const absoluteInputPath = path.resolve(file.path);
+      return new Promise((resolve, reject) => {
+        const outName = resolvePdfToJpgOutputName(file.originalname || file.filename, targetFormat, selectedPages, 0);
+        const outPath = path.join(this.outputDir, outName);
+        const defaultLibreOfficeOutputName = `${path.basename(file.path, path.extname(file.path))}.${targetFormat === "png" ? "png" : targetFormat === "jpeg" ? "jpeg" : "jpg"}`;
+        const defaultLibreOfficeOutputPath = path.join(this.outputDir, defaultLibreOfficeOutputName);
+
+        const commandArgs = [
+          "--headless",
+          "--convert-to",
+          targetFormat,
+          "--outdir",
+          this.outputDir,
+          absoluteInputPath,
+        ];
+
+        import("child_process").then(({ execFile }) => {
+          execFile("C:\\Program Files\\LibreOffice\\program\\soffice.exe", commandArgs, { timeout: 60000 }, async (err, stdout, stderr) => {
+            console.log(`[FALLBACK STDOUT]:\n${stdout}`);
+            if (stderr) console.warn(`[FALLBACK STDERR]:\n${stderr}`);
+            await safeUnlink(file.path);
 
             if (fs.existsSync(outPath)) {
               scheduleCleanUp(outPath, outName);
               return resolve(outName);
             }
-          }
-        } catch (scanErr) {
-          console.error("Directory engine normalizer system check error:", scanErr);
-        }
+            if (fs.existsSync(defaultLibreOfficeOutputPath)) {
+              fs.renameSync(defaultLibreOfficeOutputPath, outPath);
+              scheduleCleanUp(outPath, outName);
+              return resolve(outName);
+            }
 
-        if (err) {
-          return reject(new Error(`Raster output compilation failed: ${err.message}`));
-        }
+            if (err) {
+              return reject(new Error(`Raster output compilation failed: ${err.message}`));
+            }
 
-        return reject(
-          new Error("File conversion pipeline failed: Output mismatch or asset absent from storage layout.")
-        );
+            return reject(new Error("File conversion pipeline failed: Output mismatch or asset absent from storage layout."));
+          });
+        }).catch((fallbackErr) => reject(fallbackErr));
       });
-    });
+    }
   }
 }
 
